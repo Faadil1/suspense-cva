@@ -4,10 +4,14 @@
   "type": "module",
   "scripts": {
     "probe": "node scripts/probe.mjs",
+    "wallets": "node scripts/bootstrap-wallets.mjs",
+    "apass:one": "node scripts/generate-apass.mjs --one",
+    "apass:all": "node scripts/generate-apass.mjs --all",
     "verify": "node scripts/verify-apass.mjs",
     "validator": "node scripts/validator-verify.mjs"
   },
   "dependencies": {
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "ethers": "^6.15.0"
   }
 }
