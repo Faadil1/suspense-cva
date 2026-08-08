@@ -7,6 +7,8 @@
     "wallets": "node scripts/bootstrap-wallets.mjs",
     "apass:one": "node scripts/generate-apass.mjs --one",
     "apass:all": "node scripts/generate-apass.mjs --all",
+    "atoken:launch": "node scripts/launch-atoken.mjs",
+    "atoken:status": "node scripts/query-atoken-status.mjs",
     "verify": "node scripts/verify-apass.mjs",
     "validator": "node scripts/validator-verify.mjs"
   },
