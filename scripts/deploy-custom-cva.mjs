@@ -97,14 +97,14 @@ console.log(JSON.stringify({
   issuerBalanceMON: formatEther(balance),
   policy,
   tokenName: 'Suspense Coupon',
-  tokenSymbol: 'SCPN',
+  tokenSymbol: 'SPNS01',
   decimals: 6
 }, null, 2));
 
 const factory = new ContractFactory(artifact.abi, bytecode, signer);
 const contract = await factory.deploy(
   'Suspense Coupon',
-  'SCPN',
+  'SPNS01',
   6,
   policy,
   signer.address
@@ -125,7 +125,7 @@ const evidence = {
   policyAddress: policy,
   issuerAdmin: signer.address,
   tokenName: 'Suspense Coupon',
-  tokenSymbol: 'SCPN',
+  tokenSymbol: 'SPNS01',
   decimals: 6,
   txHash: receipt.hash,
   blockNumber: receipt.blockNumber,
