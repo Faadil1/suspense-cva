@@ -9,11 +9,17 @@
     "apass:all": "node scripts/generate-apass.mjs --all",
     "atoken:launch": "node scripts/launch-atoken.mjs",
     "atoken:status": "node scripts/query-atoken-status.mjs",
+    "cva:policy": "node scripts/probe-policy.mjs",
+    "cva:deploy": "node scripts/deploy-custom-cva.mjs",
+    "cva:register": "node scripts/register-custom-cva.mjs",
+    "cva:register:status": "node scripts/query-custom-cva-register-status.mjs",
     "verify": "node scripts/verify-apass.mjs",
     "validator": "node scripts/validator-verify.mjs"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "5.0.2",
     "dotenv": "^16.4.5",
-    "ethers": "^6.15.0"
+    "ethers": "^6.15.0",
+    "solc": "0.8.24"
   }
 }
