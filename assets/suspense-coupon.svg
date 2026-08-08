@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Suspense Coupon</title>
+  <desc id="desc">Five allocation nodes on a distribution rail, with one suspended node.</desc>
+  <rect width="512" height="512" rx="96" fill="#171717"/>
+  <path d="M96 256h320" stroke="#F2EFE8" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="112" cy="256" r="32" fill="#F2EFE8"/>
+  <circle cx="208" cy="256" r="32" fill="#F2EFE8"/>
+  <circle cx="304" cy="256" r="32" fill="#F2EFE8"/>
+  <circle cx="400" cy="256" r="32" fill="#F59E0B"/>
+  <path d="M400 208v-40" stroke="#F59E0B" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="400" cy="145" r="14" fill="#F59E0B"/>
+</svg>
