@@ -5,9 +5,9 @@
  *
  * Reality class: LIVE_CHAIN_STATE
  *
- * ── What this endpoint returns ────────────────────────────────────────────
+ * â”€â”€ What this endpoint returns â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * This endpoint returns:
- *   - SPNS01 vault token balance (ERC20.balanceOf(vault))
+ *   - SPNS03 vault token balance (ERC20.balanceOf(vault))
  *   - Token metadata (symbol, decimals)
  *   - Current block number and timestamp
  *   - ChainId confirmation (always 10143)
@@ -17,27 +17,27 @@
  * Allocation state will be included in a future endpoint once allocationIds exist.
  * See: GET /api/eligibility for per-holder policy checks.
  *
- * ── Decimals validation ────────────────────────────────────────────────────
+ * â”€â”€ Decimals validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * token.decimals() is read and validated against TOKEN_DECIMALS_CANONICAL_HINT (6).
- * Mismatch → DECIMALS_MISMATCH error (fail-closed).
- * Canonical: 1.0 SPNS01 = 1,000,000 raw units (6 decimals).
+ * Mismatch â†’ DECIMALS_MISMATCH error (fail-closed).
+ * Canonical: 1.0 SPNS03 = 1,000,000 raw units (6 decimals).
  *
- * ── Log sanitization ──────────────────────────────────────────────────────
+ * â”€â”€ Log sanitization â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
  * console.error writes normalized error codes only. Raw err.message,
  * err.stack, provider internals, and RPC URLs are never logged.
  *
  * Response fields:
- *   realityClass    — "LIVE_CHAIN_STATE"
- *   chainId         — 10143 (verified server-side; rejected otherwise)
- *   blockNumber     — current Monad Testnet block
- *   timestamp       — current block timestamp (Unix seconds)
- *   isoTime         — ISO8601 wall-clock time of response
- *   vault           — vault address (display only)
- *   token           — token address (display only)
- *   vaultBalance    — SPNS01 balance of vault, human-readable (e.g. "5.0")
- *   vaultBalanceRaw — vault balance in raw units (string)
- *   tokenSymbol     — e.g. "SPNS01"
- *   tokenDecimals   — result of token.decimals() at call time
+ *   realityClass    â€” "LIVE_CHAIN_STATE"
+ *   chainId         â€” 10143 (verified server-side; rejected otherwise)
+ *   blockNumber     â€” current Monad Testnet block
+ *   timestamp       â€” current block timestamp (Unix seconds)
+ *   isoTime         â€” ISO8601 wall-clock time of response
+ *   vault           â€” vault address (display only)
+ *   token           â€” token address (display only)
+ *   vaultBalance    â€” SPNS03 balance of vault, human-readable (e.g. "5.0")
+ *   vaultBalanceRaw â€” vault balance in raw units (string)
+ *   tokenSymbol     â€” e.g. "SPNS03"
+ *   tokenDecimals   â€” result of token.decimals() at call time
  *
  * Security:
  *   - MONAD_RPC_URL read server-side only; never returned to client.
@@ -77,7 +77,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Parallel reads — pure eth_call, no state mutation
+    // Parallel reads â€” pure eth_call, no state mutation
     const [
       vaultBalanceRaw,
       tokenSymbol,
@@ -99,7 +99,7 @@ export default async function handler(req, res) {
     const block = await provider.getBlock(blockNumber);
     const blockTimestamp = block ? Number(block.timestamp) : null;
 
-    // Build response — no secrets, no RPC URL
+    // Build response â€” no secrets, no RPC URL
     return res.status(200).json({
       realityClass: REALITY.LIVE_CHAIN_STATE,
       chainId: CHAIN_ID,
@@ -114,11 +114,11 @@ export default async function handler(req, res) {
       tokenDecimals: liveDecimals,
     });
   } catch (err) {
-    // Classify error using internal flags only — do not log raw err.message.
+    // Classify error using internal flags only â€” do not log raw err.message.
     const isChainMismatch    = err.message?.startsWith('CHAIN_MISMATCH');
     const isDecimalsMismatch = err.message?.startsWith('DECIMALS_MISMATCH');
 
-    // Sanitized log: normalized code only — no raw error payload.
+    // Sanitized log: normalized code only â€” no raw error payload.
     if (isChainMismatch) {
       console.error('[status] CHAIN_MISMATCH');
     } else if (isDecimalsMismatch) {

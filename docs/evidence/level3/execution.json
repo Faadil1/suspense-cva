@@ -1,7 +1,7 @@
 {
   "classification": {
     "LEVEL3_RUNTIME_INFRASTRUCTURE": "PASS",
-    "LEVEL3_FRESH_BUSINESS_REPLAY": "ACCEPT_WITH_LIMITATIONS",
+    "LEVEL3_FRESH_BUSINESS_REPLAY": "PASS",
     "HISTORICAL_BUSINESS_EVIDENCE": "PASS"
   },
   "production": {
@@ -22,5 +22,109 @@
     "suspendedAllocationId": "historical canonical evidence only",
     "duplicateProtection": "historical canonical evidence only"
   },
-  "limitation": "The newly deployed runtime vault was successfully deployed and verified, but the fresh distribution/release replay was not executed because the dedicated Level-3 signer does not possess canonical SPNS01 mint authority or token inventory and the new runtime vault has not yet been provisioned with the required Cleanverse eligibility state."
+  "externalDependencyVerification": {
+    "queryApass": {
+      "status": "NOT_REGISTERED",
+      "note": "Cleanverse UAT /query_apass reached successfully for the runtime vault."
+    },
+    "queryDepositAtokenList": {
+      "status": "PASS",
+      "note": "Cleanverse UAT /query_deposit_atoken_list for chain=monad returned successfully.",
+      "spns01Listed": false
+    },
+    "mutations": {
+      "generateApassCalled": false,
+      "faucetCalled": false,
+      "blockchainWriteOccurred": false
+    },
+    "limitation": "Historical pre-SPNS03 limitation (superseded): The runtime infrastructure is operational, but a fresh Level-3 business replay cannot currently be completed because the new runtime vault has not yet been provisioned with an A-Pass and the canonical SPNS01 test token is not available through the documented Cleanverse Monad Institution Faucet. The dedicated runtime signer also has no canonical SPNS01 mint or admin authority.",
+    "requiredFunding": {
+      "symbol": "SPNS01",
+      "rawUnits": 5000000,
+      "humanUnits": "5.0"
+    }
+  },
+  "limitation": "The newly deployed runtime vault was successfully deployed and verified, but the fresh distribution/release replay was not executed because the dedicated Level-3 signer does not possess canonical SPNS01 mint authority or token inventory and the new runtime vault has not yet been provisioned with the required Cleanverse eligibility state.",
+  "finalLevel3": {
+    "status": "PASS",
+    "classifications": {
+      "runtimeInfrastructure": "PASS",
+      "freshBusinessReplay": "PASS",
+      "productionRuntime": "PASS",
+      "historicalBusinessEvidence": "PASS"
+    },
+    "chainId": 10143,
+    "runtime": {
+      "symbol": "SPNS03",
+      "token": "0xEE4B42402219d49Fa3Ea05562d8096A9Afa20A04",
+      "vault": "0x8a6EA0AeB5b65f99e0ABf077F46D5e465b33F7C4",
+      "policy": "0x36489bE45fa84f70a0c2BDB11D824Be608CB12Dd",
+      "owner": "0xc8D2A86a4C7Abb08B7328E2cB67d3A8C18E02049",
+      "decimals": 6
+    },
+    "issuance": {
+      "requestId": "IA20260810034513479160",
+      "tx": "0xb6b10c69b9d664c81f890d8742fd2e36282dfbf5e625abfdad3db40ed3d8d3ac"
+    },
+    "vaultDeployment": {
+      "tx": "0x4d1186c66ad0d2129442f47c3db22edb5031f4f08f80f902c7063f8bcf9dc807",
+      "block": 52322353
+    },
+    "minterGrant": {
+      "tx": "0xdd84f3bb13e429c63099486b6ca881f4e43b1ca4ebf302e59680b925efd8d5ba"
+    },
+    "usWhitelistRule": {
+      "tx": "0x6405591916e6933501cfaf7838ca93bbaab80d74a34d531b510674fe73eddd9b"
+    },
+    "freshReplay": {
+      "mint": {
+        "tx": "0xfa522a34a7351976ffe1318b00b06451f9eceaa70a791a32647a2bbba8173314",
+        "totalSupplyAfter": "5000000"
+      },
+      "distribute": {
+        "tx": "0x1fbd3fb0cef2607ac8d4d4a7daffb82b2a8ef3d127a294ef25d643a1182f06d2",
+        "block": 52324424,
+        "paid": 4,
+        "suspended": 1,
+        "accounted": 5,
+        "heroState": "4_PAID_PLUS_1_SUSPENDED"
+      },
+      "holder5AllocationId": "0x7de001baef2d6e212462ac732bd84c1fbaa19f3a6ef63a376010332aa88c1856",
+      "release": {
+        "tx": "0x21ab0250fd0076a5036e3035f37b344acba0c91ef5234bfb51c77d40c7973f61",
+        "block": 52324821,
+        "paid": 4,
+        "released": 1,
+        "suspended": 0,
+        "accounted": 5,
+        "heroState": "4_PAID_PLUS_1_RELEASED",
+        "duplicateReleaseProtection": "PASS"
+      },
+      "finalVaultBalance": "0",
+      "finalHolderBalances": [
+        "1000000",
+        "1000000",
+        "1000000",
+        "1000000",
+        "1000000"
+      ]
+    },
+    "production": {
+      "deploymentId": "dpl_A6cUCTu1i47NvSNGSDs5k1jTrzE1",
+      "immutableDeployment": "https://suspense-cva-level3-oxfc4oe8q-faadil1s-projects.vercel.app",
+      "canonicalDomain": "https://suspense-cva-level3.vercel.app",
+      "statusEndpoint": "PASS",
+      "eligibilityEndpoint": "PASS",
+      "rootSmoke": "PASS",
+      "allFiveEligibility": "ALLOWED",
+      "writeGate": "CLOSED"
+    },
+    "historical": {
+      "tokenSymbol": "SPNS01",
+      "token": "0xA17EaB812000679FE3C87a0C4a29Cf8A0714A7bD",
+      "vault": "0xA94C6cF70570e0D360D668E0113132c57a6C88E0",
+      "classification": "HISTORICAL_EVIDENCE_ONLY"
+    },
+    "verifiedAt": "2026-08-09T20:39:32.940Z"
+  }
 }

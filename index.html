@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Suspense CVA — Evidence Reconstruction</title>
+  <title>Suspense CVA â€” Evidence Reconstruction</title>
   <style>
-    /* ── Reset & Base ─────────────────────────────────────────────── */
+    /* â”€â”€ Reset & Base â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -33,14 +33,14 @@
       min-height: 100vh;
     }
 
-    /* ── Layout ───────────────────────────────────────────────────── */
+    /* â”€â”€ Layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .app {
       max-width: 900px;
       margin: 0 auto;
       padding: 24px 16px 64px;
     }
 
-    /* ── Header ───────────────────────────────────────────────────── */
+    /* â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .header {
       margin-bottom: 24px;
     }
@@ -75,7 +75,7 @@
       letter-spacing: 0.5px;
     }
 
-    /* ── Mode toggle ──────────────────────────────────────────────── */
+    /* â”€â”€ Mode toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .mode-bar {
       display: flex;
       gap: 2px;
@@ -112,7 +112,7 @@
       background: var(--surface2);
     }
 
-    /* ── Reality banner ───────────────────────────────────────────── */
+    /* â”€â”€ Reality banner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .reality-banner {
       display: flex;
       align-items: center;
@@ -155,7 +155,7 @@
       50% { opacity: 0.3; }
     }
 
-    /* ── Cards ────────────────────────────────────────────────────── */
+    /* â”€â”€ Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -173,7 +173,7 @@
       margin-bottom: 16px;
     }
 
-    /* ── Stat grid ────────────────────────────────────────────────── */
+    /* â”€â”€ Stat grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .stat-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -215,7 +215,7 @@
       font-family: var(--mono);
     }
 
-    /* ── Eligibility table ────────────────────────────────────────── */
+    /* â”€â”€ Eligibility table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .holder-table {
       width: 100%;
       border-collapse: collapse;
@@ -276,7 +276,7 @@
       border: 1px solid var(--border);
     }
 
-    /* ── Controls ─────────────────────────────────────────────────── */
+    /* â”€â”€ Controls â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .controls {
       display: flex;
       align-items: center;
@@ -326,7 +326,7 @@
       font-family: var(--mono);
     }
 
-    /* ── Error / loading ──────────────────────────────────────────── */
+    /* â”€â”€ Error / loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .state-msg {
       padding: 16px;
       border-radius: 8px;
@@ -346,7 +346,7 @@
       border: 1px solid rgba(239, 68, 68, 0.2);
     }
 
-    /* ── EVIDENCE HISTORY panel ───────────────────────────────────── */
+    /* â”€â”€ EVIDENCE HISTORY panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .history-panel {
       text-align: center;
       padding: 48px 24px;
@@ -389,7 +389,7 @@
       color: var(--text-dim);
     }
 
-    /* ── Address display ──────────────────────────────────────────── */
+    /* â”€â”€ Address display â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .addr {
       font-family: var(--mono);
       font-size: 11px;
@@ -400,7 +400,7 @@
       display: inline;
     }
 
-    /* ── Responsive ───────────────────────────────────────────────── */
+    /* â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     @media (max-width: 600px) {
       .stat-grid { grid-template-columns: 1fr 1fr; }
       .stat-value { font-size: 16px; }
@@ -420,7 +420,7 @@
   <!-- Header -->
   <header class="header">
     <div class="header-brand">
-      <div class="brand-mark">⬡</div>
+      <div class="brand-mark">â¬¡</div>
       <div>
         <div class="brand-name">Suspense CVA</div>
         <div class="brand-sub">Evidence Reconstruction Demo</div>
@@ -443,29 +443,29 @@
 
     <div class="reality-banner live">
       <div class="banner-dot pulse"></div>
-      LIVE POLICY CHECK — ON-CHAIN canTransfer() · Monad Testnet · Chain 10143
+      LIVE POLICY CHECK â€” ON-CHAIN canTransfer() Â· Monad Testnet Â· Chain 10143
     </div>
 
     <div class="controls">
-      <button class="btn primary" id="refresh-btn" onclick="refresh()">↻ Refresh</button>
+      <button class="btn primary" id="refresh-btn" onclick="refresh()">â†» Refresh</button>
       <span class="refresh-time" id="refresh-time"></span>
     </div>
 
     <!-- Chain status -->
     <div class="card" id="card-status">
       <div class="card-title">Vault Status</div>
-      <div id="status-content"><div class="state-msg loading">Loading live chain state…</div></div>
+      <div id="status-content"><div class="state-msg loading">Loading live chain stateâ€¦</div></div>
     </div>
 
     <!-- Eligibility -->
     <div class="card" id="card-eligibility">
-      <div class="card-title">Eligibility — Fresh Cleanverse Policy Check</div>
-      <div id="eligibility-content"><div class="state-msg loading">Querying on-chain policy…</div></div>
+      <div class="card-title">Eligibility â€” Fresh Cleanverse Policy Check</div>
+      <div id="eligibility-content"><div class="state-msg loading">Querying on-chain policyâ€¦</div></div>
     </div>
 
     <!-- Source note -->
     <div style="font-size: 11px; color: var(--text-dim); text-align: center; margin-top: 8px;">
-      Eligibility = on-chain IATokenPolicy.canTransfer() via eth_call · Not a Cleanverse REST API call · No client secrets
+      Eligibility = on-chain IATokenPolicy.canTransfer() via eth_call Â· Not a Cleanverse REST API call Â· No client secrets
     </div>
 
   </div>
@@ -475,7 +475,7 @@
 
     <div class="reality-banner historical">
       <div class="banner-dot"></div>
-      HISTORICAL EVIDENCE · Canonical Gate E→F reconstruction · No live RPC
+      HISTORICAL EVIDENCE Â· Canonical Gate Eâ†’F reconstruction Â· No live RPC
     </div>
 
     <div class="card">
@@ -483,14 +483,14 @@
         <h2>Evidence Reconstruction Mode</h2>
         <p>
           The canonical 9-step Evidence Reconstruction demo walks through the
-          complete Suspense lifecycle using hardcoded Gate E→F on-chain receipts.
-          All data is historical evidence — no live RPC calls, no testnet connection required.
+          complete Suspense lifecycle using hardcoded Gate Eâ†’F on-chain receipts.
+          All data is historical evidence â€” no live RPC calls, no testnet connection required.
         </p>
         <a class="history-link" href="/demo/" target="_blank" rel="noopener">
-          Open Evidence Reconstruction →
+          Open Evidence Reconstruction â†’
         </a>
         <div class="history-note">
-          Opens in a new tab · Canonical demo (commit d03bb118) · Historical Evidence class
+          Opens in a new tab Â· Canonical demo (commit d03bb118) Â· Historical Evidence class
         </div>
       </div>
     </div>
@@ -500,7 +500,7 @@
 </div>
 
 <script>
-// ── Mode toggle ──────────────────────────────────────────────────────────────
+// â”€â”€ Mode toggle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function setMode(mode) {
   const isLive = mode === 'live';
   document.getElementById('view-live').style.display    = isLive ? '' : 'none';
@@ -512,13 +512,13 @@ function setMode(mode) {
   if (isLive && !_loaded) refresh();
 }
 
-// ── Data fetching ────────────────────────────────────────────────────────────
+// â”€â”€ Data fetching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let _loaded = false;
 
 async function refresh() {
   const btn = document.getElementById('refresh-btn');
   btn.disabled = true;
-  btn.textContent = '↻ Refreshing…';
+  btn.textContent = 'â†» Refreshingâ€¦';
 
   try {
     const [statusRes, eligRes] = await Promise.all([
@@ -540,32 +540,32 @@ async function refresh() {
     renderError('eligibility-content', 'Network error: ' + err.message);
   } finally {
     btn.disabled = false;
-    btn.textContent = '↻ Refresh';
+    btn.textContent = 'â†» Refresh';
   }
 }
 
-// ── Render: vault status ─────────────────────────────────────────────────────
+// â”€â”€ Render: vault status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderStatus(data, ok) {
   const el = document.getElementById('status-content');
   if (!ok || data.error) {
     el.innerHTML = `<div class="state-msg error">
-      RPC error — Monad Testnet may be unreachable.<br>
+      RPC error â€” Monad Testnet may be unreachable.<br>
       <span style="font-size:11px;opacity:0.7;">${escHtml(data.error || 'Unknown error')}</span>
     </div>`;
     return;
   }
 
-  const balance = data.vaultBalance ?? '—';
-  const block   = data.blockNumber  != null ? data.blockNumber.toLocaleString() : '—';
-  const chain   = data.chainId      ?? '—';
-  const ts      = data.timestamp ? new Date(data.timestamp * 1000).toLocaleString() : '—';
+  const balance = data.vaultBalance ?? 'â€”';
+  const block   = data.blockNumber  != null ? data.blockNumber.toLocaleString() : 'â€”';
+  const chain   = data.chainId      ?? 'â€”';
+  const ts      = data.timestamp ? new Date(data.timestamp * 1000).toLocaleString() : 'â€”';
 
   el.innerHTML = `
     <div class="stat-grid">
       <div class="stat">
         <div class="stat-label">Vault Balance</div>
         <div class="stat-value highlight">${escHtml(balance)}</div>
-        <div class="stat-sub">${escHtml(data.tokenSymbol ?? 'SPNS01')}</div>
+        <div class="stat-sub">${escHtml(data.tokenSymbol ?? 'SPNS03')}</div>
       </div>
       <div class="stat">
         <div class="stat-label">Chain ID</div>
@@ -585,7 +585,7 @@ function renderStatus(data, ok) {
     </div>`;
 }
 
-// ── Render: eligibility ──────────────────────────────────────────────────────
+// â”€â”€ Render: eligibility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderEligibility(data, ok) {
   const el = document.getElementById('eligibility-content');
   if (!ok || data.error) {
@@ -599,7 +599,7 @@ function renderEligibility(data, ok) {
   const holders = data.holders ?? [];
   const rows = holders.map(h => {
     const cls  = h.error ? 'unknown' : (h.eligible ? 'eligible' : 'ineligible');
-    const dot  = h.eligible ? '✓' : '✗';
+    const dot  = h.eligible ? 'âœ“' : 'âœ—';
     const lbl  = h.error ? 'Error' : (h.eligible ? 'Eligible' : 'Ineligible');
     return `<tr>
       <td><strong>${escHtml(String(h.holder))}</strong></td>
@@ -614,8 +614,8 @@ function renderEligibility(data, ok) {
 
   el.innerHTML = `
     <div style="margin-bottom:14px; font-size:12px; color:var(--text-muted);">
-      Policy: <span class="addr">${shortAddr(data.policy)}</span> ·
-      Checked at: ${escHtml(data.isoTime ?? '—')} ·
+      Policy: <span class="addr">${shortAddr(data.policy)}</span> Â·
+      Checked at: ${escHtml(data.isoTime ?? 'â€”')} Â·
       <strong style="color:var(--green)">${eligCount}/${total} eligible</strong>
     </div>
     <table class="holder-table">
@@ -631,7 +631,7 @@ function renderEligibility(data, ok) {
     </table>`;
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function renderError(id, msg) {
   document.getElementById(id).innerHTML =
     `<div class="state-msg error">${escHtml(msg)}</div>`;
@@ -646,11 +646,11 @@ function escHtml(str) {
 }
 
 function shortAddr(addr) {
-  if (!addr) return '—';
-  return `<span class="addr-short" title="${escHtml(addr)}">${escHtml(addr.slice(0,6))}…${escHtml(addr.slice(-4))}</span>`;
+  if (!addr) return 'â€”';
+  return `<span class="addr-short" title="${escHtml(addr)}">${escHtml(addr.slice(0,6))}â€¦${escHtml(addr.slice(-4))}</span>`;
 }
 
-// ── Init ─────────────────────────────────────────────────────────────────────
+// â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 refresh();
 </script>
 </body>
