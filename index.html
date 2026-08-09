@@ -42,10 +42,7 @@
     button { color: inherit; }
     a { color: inherit; }
 
-    ::selection {
-      background: var(--acid);
-      color: var(--void);
-    }
+    ::selection { background: var(--acid); color: var(--void); }
 
     .shell {
       width: min(1480px, calc(100% - 48px));
@@ -67,7 +64,6 @@
       align-items: stretch;
       width: fit-content;
       font-family: var(--display);
-      font-stretch: condensed;
       font-size: 24px;
       font-weight: 900;
       line-height: 1;
@@ -85,19 +81,12 @@
     .wordmark-gate::after {
       content: "";
       position: absolute;
-      top: 50%;
-      left: -3px;
-      width: 8px;
-      height: 1px;
+      top: 50%; left: -3px;
+      width: 8px; height: 1px;
       background: var(--paper);
     }
 
-    .nav {
-      display: flex;
-      gap: 26px;
-      align-items: center;
-    }
-
+    .nav { display: flex; gap: 26px; align-items: center; }
     .nav a {
       text-decoration: none;
       text-transform: uppercase;
@@ -106,9 +95,7 @@
       color: var(--muted);
       transition: color 120ms ease;
     }
-
-    .nav a:hover,
-    .nav a:focus-visible { color: var(--paper); }
+    .nav a:hover, .nav a:focus-visible { color: var(--paper); }
 
     .live-lockup {
       justify-self: end;
@@ -122,8 +109,7 @@
     }
 
     .live-dot {
-      width: 7px;
-      height: 7px;
+      width: 7px; height: 7px;
       background: var(--acid);
       box-shadow: 0 0 0 1px var(--acid);
       animation: pulse 1.8s steps(2, end) infinite;
@@ -142,14 +128,12 @@
 
     .hero-top {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(260px, 380px);
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 390px);
       gap: 48px;
       align-items: end;
     }
 
-    .eyebrow,
-    .section-index,
-    .micro-label {
+    .eyebrow, .section-index, .micro-label {
       text-transform: uppercase;
       font-size: 10px;
       letter-spacing: .15em;
@@ -158,7 +142,7 @@
 
     .hero-title {
       margin-top: 12px;
-      max-width: 1050px;
+      max-width: 1080px;
       font-family: var(--display);
       font-size: clamp(58px, 8.8vw, 150px);
       line-height: .82;
@@ -178,15 +162,57 @@
       font-size: 14px;
       line-height: 1.6;
     }
+    .hero-copy strong { color: var(--paper); font-weight: 600; }
 
-    .hero-copy strong {
-      color: var(--paper);
-      font-weight: 600;
+    .live-strip {
+      display: grid;
+      grid-template-columns: 1.2fr repeat(4, minmax(110px, .65fr));
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line-strong);
+      min-height: 62px;
+    }
+
+    .live-strip-cell {
+      padding: 10px 14px;
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      min-width: 0;
+    }
+    .live-strip-cell:first-child { padding-left: 0; }
+    .live-strip-cell:last-child { border-right: 0; }
+
+    .live-strip-value {
+      font-family: var(--display);
+      font-size: 22px;
+      font-weight: 800;
+      text-transform: uppercase;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .live-strip-value.acid { color: var(--acid); }
+    .live-strip-value.warn { color: var(--hold); }
+
+    .live-scan-cell { position: relative; overflow: hidden; }
+    .live-scan-cell::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 2px;
+      background: var(--acid);
+      transform-origin: left;
+      transform: scaleX(var(--refresh-progress, 0));
+      transition: transform 1s linear;
     }
 
     .chamber {
       position: relative;
-      min-height: 390px;
+      min-height: 410px;
       border-top: 1px solid var(--line-strong);
       border-bottom: 1px solid var(--line-strong);
       display: grid;
@@ -197,8 +223,7 @@
     .chamber::before {
       content: "";
       position: absolute;
-      top: 0;
-      bottom: 0;
+      top: 0; bottom: 0;
       left: var(--gate);
       width: 1px;
       background: var(--paper);
@@ -209,8 +234,7 @@
     .chamber::after {
       content: "POLICY GATE";
       position: absolute;
-      top: 0;
-      left: var(--gate);
+      top: 0; left: var(--gate);
       transform: translate(-50%, -100%);
       padding: 0 8px 7px;
       background: var(--void);
@@ -220,24 +244,24 @@
       white-space: nowrap;
     }
 
-    .chamber-head,
-    .chamber-foot {
-      min-height: 50px;
+    .chamber.live-flash::before { animation: gateFlash .7s ease; }
+    @keyframes gateFlash {
+      0% { background: var(--paper); box-shadow: none; }
+      35% { background: var(--acid); box-shadow: 0 0 24px rgba(217,255,67,.35); opacity: 1; }
+      100% { background: var(--paper); box-shadow: none; opacity: .55; }
+    }
+
+    .chamber-head, .chamber-foot {
+      min-height: 52px;
       display: grid;
       grid-template-columns: 1fr auto;
       align-items: center;
       gap: 20px;
     }
-
     .chamber-head { border-bottom: 1px solid var(--line); }
     .chamber-foot { border-top: 1px solid var(--line); }
 
-    .chamber-mode {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-    }
-
+    .chamber-mode { display: flex; align-items: baseline; gap: 10px; }
     .chamber-mode strong {
       font-family: var(--display);
       font-size: 18px;
@@ -253,116 +277,85 @@
       text-transform: uppercase;
     }
 
-    .allocation-list {
-      display: grid;
-      align-content: center;
-      min-height: 285px;
-    }
+    .allocation-list { display: grid; align-content: center; min-height: 294px; }
 
     .allocation-row {
-      min-height: 54px;
+      min-height: 56px;
       display: grid;
       grid-template-columns: 90px minmax(0, 1fr) 126px;
       align-items: center;
       border-bottom: 1px solid var(--line);
       position: relative;
     }
-
     .allocation-row:last-child { border-bottom: 0; }
 
-    .holder-id {
-      display: flex;
-      gap: 12px;
-      align-items: baseline;
-      font-size: 11px;
-    }
-
-    .holder-id strong {
-      color: var(--paper);
-      font-size: 14px;
-      font-weight: 500;
-    }
-
+    .holder-id { display: flex; gap: 12px; align-items: baseline; font-size: 11px; }
+    .holder-id strong { color: var(--paper); font-size: 14px; }
     .holder-id span { color: var(--dim); }
 
     .track {
-      height: 18px;
+      height: 1px;
+      background: var(--line-strong);
       position: relative;
-      margin: 0 18px;
+      margin-right: 22px;
     }
 
     .track::before {
       content: "";
       position: absolute;
-      left: 0;
-      right: 0;
-      top: 50%;
-      height: 1px;
-      background: var(--line-strong);
-    }
-
-    .track::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: calc(50% - 2px);
-      width: 5px;
-      height: 5px;
-      background: var(--line-strong);
+      top: -4px;
+      left: calc(var(--gate) - 90px);
+      width: 8px; height: 8px;
+      border: 1px solid var(--line-strong);
+      background: var(--void);
+      transform: translateX(-50%);
+      z-index: 3;
     }
 
     .runner {
       position: absolute;
-      z-index: 3;
-      top: 50%;
-      left: 4%;
-      width: 10px;
-      height: 10px;
-      transform: translate(-50%, -50%);
-      background: var(--paper);
-      transition: left 620ms cubic-bezier(.2,.75,.15,1), width 160ms ease, background 160ms ease;
-    }
-
-    .runner::before {
-      content: "";
-      position: absolute;
-      top: 50%;
-      right: 100%;
-      width: 0;
-      height: 1px;
-      background: currentColor;
-      transition: width 620ms cubic-bezier(.2,.75,.15,1);
+      top: 50%; left: 0;
+      width: 10px; height: 10px;
+      transform: translate(0, -50%);
+      background: var(--unknown);
+      transition: left .65s cubic-bezier(.2,.8,.2,1), background .2s ease, box-shadow .2s ease;
+      z-index: 4;
     }
 
     .allocation-state {
-      justify-self: end;
       text-align: right;
-      font-size: 10px;
-      letter-spacing: .1em;
       text-transform: uppercase;
-      color: var(--muted);
-      min-width: 110px;
+      font-family: var(--display);
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: .03em;
+      color: var(--unknown);
+    }
+
+    .allocation-row[data-state="queued"] .runner { left: 3%; background: var(--dim); }
+    .allocation-row[data-state="scanning"] .runner,
+    .allocation-row[data-state="recheck"] .runner {
+      left: calc(var(--gate) - 94px);
+      background: var(--paper);
+      box-shadow: 0 0 18px rgba(236,234,226,.22);
+    }
+    .allocation-row[data-state="allowed"] .runner,
+    .allocation-row[data-state="paid"] .runner,
+    .allocation-row[data-state="released"] .runner { left: calc(100% - 10px); }
+    .allocation-row[data-state="blocked"] .runner,
+    .allocation-row[data-state="suspended"] .runner {
+      left: calc(var(--gate) - 94px);
+      background: var(--hold);
+      box-shadow: 0 0 20px rgba(255,176,0,.18);
+    }
+    .allocation-row[data-state="unknown"] .runner {
+      left: calc(var(--gate) - 94px);
+      background: var(--unknown);
     }
 
     .allocation-row[data-state="allowed"] .runner,
-    .allocation-row[data-state="paid"] .runner,
-    .allocation-row[data-state="released"] .runner { left: 91%; }
-
-    .allocation-row[data-state="blocked"] .runner,
-    .allocation-row[data-state="suspended"] .runner,
-    .allocation-row[data-state="recheck"] .runner { left: var(--gate); }
-
-    .allocation-row[data-state="unknown"] .runner { left: 48%; }
-
-    .allocation-row[data-state="allowed"] .runner,
-    .allocation-row[data-state="paid"] .runner { background: var(--acid); color: var(--acid); }
-
-    .allocation-row[data-state="blocked"] .runner,
-    .allocation-row[data-state="suspended"] .runner { background: var(--hold); color: var(--hold); width: 18px; }
-
-    .allocation-row[data-state="released"] .runner { background: var(--release); color: var(--release); }
-    .allocation-row[data-state="unknown"] .runner { background: var(--unknown); color: var(--unknown); }
-    .allocation-row[data-state="recheck"] .runner { background: var(--paper); color: var(--paper); animation: scan 500ms steps(2,end) infinite; }
+    .allocation-row[data-state="paid"] .runner { background: var(--acid); }
+    .allocation-row[data-state="released"] .runner { background: var(--release); }
 
     .allocation-row[data-state="allowed"] .allocation-state,
     .allocation-row[data-state="paid"] .allocation-state { color: var(--acid); }
@@ -371,411 +364,197 @@
     .allocation-row[data-state="released"] .allocation-state { color: var(--release); }
     .allocation-row[data-state="unknown"] .allocation-state { color: var(--unknown); }
 
-    @keyframes scan { 50% { opacity: .25; } }
-
-    .chamber-summary {
-      display: flex;
-      align-items: baseline;
-      gap: 14px;
-      min-width: 0;
+    .allocation-row.scan-wave::after {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 0;
+      width: 1px;
+      background: var(--acid);
+      opacity: 0;
+      animation: scanWave .75s ease-out;
     }
 
+    @keyframes scanWave {
+      0% { left: 0; opacity: 0; }
+      15% { opacity: .75; }
+      100% { left: 100%; opacity: 0; }
+    }
+
+    .chamber-summary { display: flex; align-items: baseline; gap: 16px; }
     .summary-number {
       font-family: var(--display);
-      font-size: clamp(30px, 3.5vw, 56px);
+      font-size: 34px;
       line-height: 1;
-      letter-spacing: -.04em;
-      white-space: nowrap;
+      letter-spacing: -.02em;
     }
+    .summary-copy { color: var(--muted); font-size: 10px; max-width: 520px; }
 
-    .summary-copy {
-      color: var(--muted);
-      text-transform: uppercase;
-      font-size: 9px;
-      letter-spacing: .12em;
-      max-width: 260px;
-    }
-
-    .chamber-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
+    .chamber-actions { display: flex; align-items: center; gap: 10px; }
     .action {
+      appearance: none;
       border: 1px solid var(--paper);
-      background: transparent;
-      min-height: 38px;
-      padding: 0 14px;
-      text-transform: uppercase;
-      letter-spacing: .11em;
-      font-size: 9px;
-      cursor: pointer;
-      transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
-    }
-
-    .action:hover:not(:disabled),
-    .action:focus-visible {
       background: var(--paper);
       color: var(--void);
-      outline: none;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: .12em;
+      padding: 10px 13px;
+      cursor: pointer;
     }
-
-    .action.secondary { border-color: var(--line-strong); color: var(--muted); }
-    .action:disabled { cursor: wait; opacity: .45; }
+    .action.secondary { background: transparent; color: var(--paper); border-color: var(--line-strong); }
+    .action:hover:not(:disabled), .action:focus-visible:not(:disabled) { background: var(--acid); border-color: var(--acid); color: var(--void); }
+    .action:disabled { opacity: .42; cursor: default; }
 
     .hero-meta {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      border-top: 1px solid var(--line);
+      border-top: 1px solid var(--line-strong);
     }
-
-    .meta-cell {
-      padding-top: 10px;
-      border-right: 1px solid var(--line);
-    }
-
-    .meta-cell:not(:first-child) { padding-left: 16px; }
-    .meta-cell:last-child { border-right: 0; }
-
+    .meta-cell { padding: 12px 14px 0 0; min-width: 0; }
+    .meta-cell + .meta-cell { border-left: 1px solid var(--line); padding-left: 14px; }
     .meta-value {
-      margin-top: 5px;
+      margin-top: 4px;
       font-size: 11px;
-      color: var(--paper);
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
-    .section {
-      padding: 96px 0;
-      border-bottom: 1px solid var(--line-strong);
-    }
-
+    .section { padding: 88px 0; border-bottom: 1px solid var(--line-strong); }
     .section-head {
       display: grid;
-      grid-template-columns: 120px minmax(0, 1fr) minmax(220px, 420px);
-      gap: 28px;
+      grid-template-columns: 90px minmax(0, 1fr) minmax(260px, 380px);
+      gap: 32px;
       align-items: start;
-      margin-bottom: 54px;
+      margin-bottom: 38px;
     }
-
     .section-title {
       font-family: var(--display);
-      font-size: clamp(36px, 5.6vw, 88px);
-      line-height: .92;
-      letter-spacing: -.045em;
+      font-size: clamp(42px, 5.2vw, 78px);
+      line-height: .9;
+      letter-spacing: -.035em;
       text-transform: uppercase;
-      font-weight: 900;
     }
+    .section-deck { color: var(--muted); font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.65; }
 
-    .section-deck {
-      color: var(--muted);
-      font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.65;
-      font-size: 14px;
-    }
-
-    .system-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
-      gap: 0;
-      border-top: 1px solid var(--line-strong);
-      border-bottom: 1px solid var(--line-strong);
-    }
-
-    .readout,
-    .policy-roster { padding: 26px 0; }
-    .readout { border-right: 1px solid var(--line-strong); padding-right: 36px; }
-    .policy-roster { padding-left: 36px; }
-
-    .readout-row,
-    .roster-row {
-      min-height: 48px;
+    .system-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 0; border-top: 1px solid var(--line-strong); }
+    .readout { border-right: 1px solid var(--line-strong); }
+    .readout-row, .roster-row {
+      min-height: 52px;
       display: grid;
       align-items: center;
       border-bottom: 1px solid var(--line);
     }
-
-    .readout-row { grid-template-columns: 170px minmax(0,1fr); }
-    .roster-row { grid-template-columns: 52px 1fr auto; gap: 12px; }
-    .readout-row:last-child,
-    .roster-row:last-child { border-bottom: 0; }
-
-    .readout-key,
-    .roster-wallet {
-      color: var(--dim);
-      text-transform: uppercase;
-      font-size: 9px;
-      letter-spacing: .11em;
-    }
-
-    .readout-value {
-      justify-self: end;
-      text-align: right;
-      color: var(--paper);
-      font-size: 11px;
-      word-break: break-word;
-    }
-
-    .readout-value.signal { color: var(--acid); }
+    .readout-row { grid-template-columns: 180px 1fr; }
+    .readout-key { color: var(--muted); text-transform: uppercase; font-size: 10px; letter-spacing: .12em; }
+    .readout-value { overflow-wrap: anywhere; }
     .readout-value.warn { color: var(--hold); }
-
-    .roster-state {
-      text-transform: uppercase;
-      font-size: 9px;
-      letter-spacing: .11em;
-    }
-
+    .policy-roster { padding-left: 28px; }
+    .roster-row { grid-template-columns: 44px 1fr 110px; }
+    .roster-wallet { color: var(--muted); font-size: 11px; }
+    .roster-state { text-align: right; font-family: var(--display); font-size: 16px; font-weight: 800; }
     .roster-state.allowed { color: var(--acid); }
     .roster-state.blocked { color: var(--hold); }
     .roster-state.unknown { color: var(--unknown); }
 
-    .execution-grid {
-      display: grid;
-      grid-template-columns: 1fr 120px 1fr;
-      align-items: stretch;
-      border-top: 1px solid var(--line-strong);
-      border-bottom: 1px solid var(--line-strong);
-    }
+    .execution-grid { display: grid; grid-template-columns: 1fr 80px 1fr; align-items: stretch; border-top: 1px solid var(--line-strong); }
+    .execution-state { padding: 22px 0 0; }
+    .execution-state h3 { font-family: var(--display); font-size: 30px; text-transform: uppercase; margin: 8px 0 22px; }
+    .execution-line { min-height: 46px; display: grid; grid-template-columns: 50px 1fr auto; align-items: center; border-top: 1px solid var(--line); }
+    .execution-line span:nth-child(2) { color: var(--muted); }
+    .state-paid { color: var(--acid); }
+    .state-suspended { color: var(--hold); }
+    .state-released { color: var(--release); }
+    .accounted { display: flex; align-items: baseline; justify-content: space-between; border-top: 1px solid var(--line-strong); padding-top: 16px; margin-top: 12px; }
+    .accounted strong { font-family: var(--display); font-size: 46px; }
+    .accounted span { text-transform: uppercase; color: var(--muted); font-size: 10px; letter-spacing: .14em; }
+    .execution-arrow { display: grid; place-items: center; color: var(--muted); font-size: 30px; }
 
-    .execution-state { padding: 30px 0; }
-    .execution-state:first-child { padding-right: 34px; }
-    .execution-state:last-child { padding-left: 34px; }
+    .ledger { border-top: 1px solid var(--line-strong); }
+    .ledger-row { min-height: 72px; display: grid; grid-template-columns: 110px 150px 1fr 120px; gap: 18px; align-items: center; border-bottom: 1px solid var(--line); }
+    .ledger-kind { font-family: var(--display); font-size: 22px; text-transform: uppercase; }
+    .ledger-hash { color: var(--muted); font-size: 10px; overflow-wrap: anywhere; }
+    .verified { color: var(--release); text-align: right; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
 
-    .execution-arrow {
-      display: grid;
-      place-items: center;
-      border-left: 1px solid var(--line);
-      border-right: 1px solid var(--line);
-      color: var(--muted);
-      font-family: var(--display);
-      font-size: 44px;
-    }
-
-    .execution-state h3 {
-      font-family: var(--display);
-      font-size: 28px;
-      text-transform: uppercase;
-      line-height: 1;
-      letter-spacing: -.025em;
-      margin: 8px 0 28px;
-    }
-
-    .execution-line {
-      display: grid;
-      grid-template-columns: 46px 1fr auto;
-      min-height: 44px;
-      align-items: center;
-      border-bottom: 1px solid var(--line);
-      gap: 12px;
-      font-size: 10px;
-    }
-
-    .execution-line:last-child { border-bottom: 0; }
-    .execution-line .state-paid { color: var(--acid); }
-    .execution-line .state-suspended { color: var(--hold); }
-    .execution-line .state-released { color: var(--release); }
-
-    .accounted {
-      margin-top: 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 20px;
-      border-top: 1px solid var(--paper);
-      padding-top: 12px;
-    }
-
-    .accounted strong {
-      font-family: var(--display);
-      font-size: 46px;
-      line-height: 1;
-      letter-spacing: -.04em;
-    }
-
-    .accounted span {
-      color: var(--muted);
-      text-transform: uppercase;
-      font-size: 9px;
-      letter-spacing: .12em;
-    }
-
-    .ledger {
-      border-top: 1px solid var(--line-strong);
-    }
-
-    .ledger-row {
-      display: grid;
-      grid-template-columns: 110px minmax(140px, .7fr) minmax(0, 1.4fr) 100px;
-      min-height: 72px;
-      align-items: center;
-      gap: 20px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .ledger-kind {
-      font-family: var(--display);
-      font-size: 22px;
-      text-transform: uppercase;
-      letter-spacing: -.02em;
-    }
-
-    .ledger-hash {
-      color: var(--muted);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-size: 10px;
-    }
-
-    .verified {
-      justify-self: end;
-      color: var(--acid);
-      font-size: 9px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
-
-    .archive-cta {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 30px;
-      align-items: center;
-      padding: 38px 0 0;
-    }
-
-    .archive-cta p {
-      color: var(--muted);
-      max-width: 680px;
-      font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.65;
-    }
-
-    .archive-link {
-      display: inline-flex;
-      align-items: center;
-      min-height: 42px;
-      padding: 0 16px;
-      border: 1px solid var(--paper);
-      text-decoration: none;
-      text-transform: uppercase;
-      font-size: 9px;
-      letter-spacing: .12em;
-      transition: background 120ms ease, color 120ms ease;
-    }
-
-    .archive-link:hover,
-    .archive-link:focus-visible {
-      background: var(--paper);
-      color: var(--void);
-      outline: none;
-    }
+    .archive-cta { margin-top: 36px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; border-top: 1px solid var(--line); padding-top: 18px; }
+    .archive-cta p { max-width: 720px; color: var(--muted); font-family: Arial, Helvetica, sans-serif; font-size: 13px; }
+    .archive-link { text-transform: uppercase; text-decoration: none; letter-spacing: .12em; font-size: 10px; border-bottom: 1px solid var(--paper); padding-bottom: 3px; }
 
     .telemetry {
-      min-height: 58px;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      min-height: 56px;
+      display: flex;
+      gap: 28px;
       align-items: center;
-      gap: 16px;
-      color: var(--dim);
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      font-size: 8px;
-    }
-
-    .telemetry strong {
+      flex-wrap: wrap;
       color: var(--muted);
-      font-weight: 500;
+      text-transform: uppercase;
+      font-size: 9px;
+      letter-spacing: .11em;
     }
+    .telemetry strong { color: var(--paper); font-weight: 500; }
+    .telemetry .health { margin-left: auto; color: var(--acid); }
 
-    .telemetry .health { color: var(--acid); }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0,0,0,0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    @media (max-width: 980px) {
-      .shell { width: min(100% - 32px, 1480px); }
-      .masthead { grid-template-columns: 1fr 1fr; }
-      .nav { display: none; }
-      .hero-top { grid-template-columns: 1fr; gap: 26px; }
-      .hero-copy { max-width: 620px; }
-      .section-head { grid-template-columns: 80px 1fr; }
-      .section-deck { grid-column: 2; }
-      .system-grid { grid-template-columns: 1fr; }
-      .readout { border-right: 0; border-bottom: 1px solid var(--line-strong); padding-right: 0; }
-      .policy-roster { padding-left: 0; }
-      .execution-grid { grid-template-columns: 1fr; }
-      .execution-state:first-child,
-      .execution-state:last-child { padding: 28px 0; }
-      .execution-arrow { min-height: 68px; border: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); transform: rotate(90deg); }
-      .ledger-row { grid-template-columns: 80px 1fr 92px; }
-      .ledger-hash { grid-column: 2 / 4; padding-bottom: 14px; }
-      .hero-meta { grid-template-columns: 1fr 1fr; }
-      .meta-cell { min-height: 58px; border-bottom: 1px solid var(--line); }
-      .meta-cell:nth-child(2) { border-right: 0; }
-    }
-
-    @media (max-width: 680px) {
+    @media (max-width: 900px) {
       :root { --gate: 58%; }
-      .shell { width: min(100% - 22px, 1480px); }
+      .shell { width: min(100% - 28px, 1480px); }
+      .masthead { grid-template-columns: 1fr auto; }
+      .nav { display: none; }
+      .hero { min-height: auto; }
+      .hero-top, .section-head { grid-template-columns: 1fr; gap: 18px; }
+      .hero-copy { max-width: 540px; }
+      .live-strip { grid-template-columns: repeat(2, 1fr); }
+      .live-strip-cell { border-bottom: 1px solid var(--line); }
+      .live-strip-cell:first-child { padding-left: 14px; }
+      .system-grid, .execution-grid { grid-template-columns: 1fr; }
+      .readout { border-right: 0; }
+      .policy-roster { padding-left: 0; margin-top: 24px; }
+      .execution-arrow { min-height: 70px; transform: rotate(90deg); }
+      .ledger-row { grid-template-columns: 90px 120px 1fr; }
+      .verified { grid-column: 3; text-align: left; padding-bottom: 12px; }
+      .hero-meta { grid-template-columns: 1fr 1fr; }
+      .meta-cell:nth-child(3) { border-left: 0; padding-left: 0; }
+    }
+
+    @media (max-width: 620px) {
+      :root { --gate: 53%; }
       .masthead { min-height: 66px; }
-      .wordmark { font-size: 20px; }
       .live-lockup span:last-child { display: none; }
-      .hero { min-height: auto; padding-top: 34px; }
-      .hero-title { font-size: clamp(54px, 18vw, 94px); }
-      .chamber { min-height: 430px; }
-      .chamber-head,
-      .chamber-foot { grid-template-columns: 1fr; padding: 10px 0; gap: 8px; }
+      .hero { padding-top: 32px; }
+      .hero-title { font-size: clamp(52px, 18vw, 92px); }
+      .live-strip { grid-template-columns: 1fr 1fr; }
+      .live-strip-value { font-size: 18px; }
+      .chamber { min-height: 470px; }
+      .chamber-head, .chamber-foot { grid-template-columns: 1fr; padding: 12px 0; }
       .phase-readout { text-align: left; }
-      .allocation-row { grid-template-columns: 54px minmax(0, 1fr) 86px; }
-      .holder-id { gap: 6px; }
-      .holder-id span { display: none; }
-      .track { margin: 0 10px; }
-      .allocation-state { min-width: 72px; font-size: 8px; }
-      .chamber-summary { align-items: center; }
-      .summary-copy { display: none; }
-      .chamber-actions { flex-wrap: wrap; }
-      .action { flex: 1 1 auto; }
+      .allocation-row { grid-template-columns: 54px minmax(0,1fr) 86px; }
+      .track { margin-right: 10px; }
+      .allocation-state { font-size: 14px; }
+      .chamber-summary { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .chamber-actions { width: 100%; }
+      .action { flex: 1; }
       .hero-meta { grid-template-columns: 1fr; }
-      .meta-cell,
-      .meta-cell:not(:first-child) { padding: 9px 0; border-right: 0; }
-      .section { padding: 72px 0; }
-      .section-head { grid-template-columns: 1fr; margin-bottom: 36px; }
-      .section-deck { grid-column: auto; }
-      .readout-row { grid-template-columns: 110px 1fr; }
-      .ledger-row { grid-template-columns: 62px 1fr 76px; gap: 12px; }
-      .ledger-kind { font-size: 18px; }
+      .meta-cell + .meta-cell { border-left: 0; border-top: 1px solid var(--line); padding: 10px 0 0; margin-top: 8px; }
+      .section { padding: 60px 0; }
+      .section-title { font-size: 44px; }
+      .readout-row { grid-template-columns: 120px 1fr; gap: 14px; }
+      .roster-row { grid-template-columns: 34px 1fr 84px; }
+      .ledger-row { grid-template-columns: 1fr; gap: 6px; padding: 14px 0; }
+      .verified { grid-column: auto; }
       .archive-cta { grid-template-columns: 1fr; }
-      .telemetry { grid-template-columns: 1fr 1fr; padding: 18px 0; }
+      .telemetry .health { margin-left: 0; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
-        scroll-behavior: auto !important;
-        transition-duration: .01ms !important;
-      }
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
     }
   </style>
 </head>
 <body>
   <div class="shell">
     <header class="masthead">
-      <a class="wordmark" href="#live" aria-label="Suspense home">
-        <span>SUSPEN</span><span class="wordmark-gate" aria-hidden="true"></span><span>SE</span>
-      </a>
-      <nav class="nav" aria-label="Primary navigation">
+      <div class="wordmark" aria-label="Suspense"><span>SUSPEN</span><span class="wordmark-gate" aria-hidden="true"></span><span>SE</span></div>
+      <nav class="nav" aria-label="Primary">
         <a href="#live">01 Live</a>
         <a href="#execution">02 Execution</a>
         <a href="#evidence">03 Evidence</a>
@@ -790,56 +569,49 @@
             <div class="eyebrow">01 / Settlement infrastructure</div>
             <h1 class="hero-title" id="hero-title">Pay what clears.<span class="line-2">Hold what doesn’t.</span></h1>
           </div>
-          <p class="hero-copy">
-            Suspense makes compliance visible. <strong>Eligible allocations move.</strong> Ineligible allocations remain accounted for until a fresh policy check clears the same allocation for release.
-          </p>
+          <p class="hero-copy">Suspense makes compliance visible. <strong>Eligible allocations move.</strong> Ineligible allocations remain accounted for until a fresh policy check clears the same allocation for release.</p>
         </div>
 
-        <div></div>
+        <div class="live-strip" aria-label="Live telemetry">
+          <div class="live-strip-cell live-scan-cell" id="live-scan-cell">
+            <span class="micro-label">Live policy field</span>
+            <span class="live-strip-value acid" id="live-field">Connecting</span>
+          </div>
+          <div class="live-strip-cell">
+            <span class="micro-label">Block</span>
+            <span class="live-strip-value" id="live-block">—</span>
+          </div>
+          <div class="live-strip-cell">
+            <span class="micro-label">Last check</span>
+            <span class="live-strip-value" id="live-age">—</span>
+          </div>
+          <div class="live-strip-cell">
+            <span class="micro-label">Unknown</span>
+            <span class="live-strip-value" id="live-unknown">—</span>
+          </div>
+          <div class="live-strip-cell">
+            <span class="micro-label">Next read</span>
+            <span class="live-strip-value" id="live-next">20s</span>
+          </div>
+        </div>
 
-        <div class="chamber" aria-live="polite">
+        <div class="chamber" id="chamber" aria-live="polite">
           <div class="chamber-head">
             <div class="chamber-mode"><span class="micro-label">Settlement chamber</span><strong id="chamber-mode">Live policy state</strong></div>
             <div class="phase-readout" id="phase-readout">Waiting for live policy check</div>
           </div>
 
           <div class="allocation-list" id="allocation-list">
-            <div class="allocation-row" data-holder="1" data-country="CA" data-state="queued">
-              <div class="holder-id"><strong>01</strong><span>CA</span></div>
-              <div class="track"><span class="runner" aria-hidden="true"></span></div>
-              <div class="allocation-state">Queued</div>
-            </div>
-            <div class="allocation-row" data-holder="2" data-country="CA" data-state="queued">
-              <div class="holder-id"><strong>02</strong><span>CA</span></div>
-              <div class="track"><span class="runner" aria-hidden="true"></span></div>
-              <div class="allocation-state">Queued</div>
-            </div>
-            <div class="allocation-row" data-holder="3" data-country="CA" data-state="queued">
-              <div class="holder-id"><strong>03</strong><span>CA</span></div>
-              <div class="track"><span class="runner" aria-hidden="true"></span></div>
-              <div class="allocation-state">Queued</div>
-            </div>
-            <div class="allocation-row" data-holder="4" data-country="CA" data-state="queued">
-              <div class="holder-id"><strong>04</strong><span>CA</span></div>
-              <div class="track"><span class="runner" aria-hidden="true"></span></div>
-              <div class="allocation-state">Queued</div>
-            </div>
-            <div class="allocation-row" data-holder="5" data-country="US" data-state="queued">
-              <div class="holder-id"><strong>05</strong><span>US</span></div>
-              <div class="track"><span class="runner" aria-hidden="true"></span></div>
-              <div class="allocation-state">Queued</div>
-            </div>
+            <div class="allocation-row" data-holder="1" data-country="CA" data-state="queued"><div class="holder-id"><strong>01</strong><span>CA</span></div><div class="track"><span class="runner" aria-hidden="true"></span></div><div class="allocation-state">Queued</div></div>
+            <div class="allocation-row" data-holder="2" data-country="CA" data-state="queued"><div class="holder-id"><strong>02</strong><span>CA</span></div><div class="track"><span class="runner" aria-hidden="true"></span></div><div class="allocation-state">Queued</div></div>
+            <div class="allocation-row" data-holder="3" data-country="CA" data-state="queued"><div class="holder-id"><strong>03</strong><span>CA</span></div><div class="track"><span class="runner" aria-hidden="true"></span></div><div class="allocation-state">Queued</div></div>
+            <div class="allocation-row" data-holder="4" data-country="CA" data-state="queued"><div class="holder-id"><strong>04</strong><span>CA</span></div><div class="track"><span class="runner" aria-hidden="true"></span></div><div class="allocation-state">Queued</div></div>
+            <div class="allocation-row" data-holder="5" data-country="US" data-state="queued"><div class="holder-id"><strong>05</strong><span>US</span></div><div class="track"><span class="runner" aria-hidden="true"></span></div><div class="allocation-state">Queued</div></div>
           </div>
 
           <div class="chamber-foot">
-            <div class="chamber-summary">
-              <strong class="summary-number" id="summary-number">— / 5</strong>
-              <span class="summary-copy" id="summary-copy">Current eligibility is live. Settlement lifecycle is shown only in verified replay.</span>
-            </div>
-            <div class="chamber-actions">
-              <button class="action" id="replay-btn" type="button">Replay verified execution →</button>
-              <button class="action secondary" id="live-btn" type="button">Refresh live</button>
-            </div>
+            <div class="chamber-summary"><strong class="summary-number" id="summary-number">— / 5</strong><span class="summary-copy" id="summary-copy">Current eligibility is live. Settlement lifecycle is shown only in verified replay.</span></div>
+            <div class="chamber-actions"><button class="action" id="replay-btn" type="button">Replay verified execution →</button><button class="action secondary" id="live-btn" type="button">Refresh live</button></div>
           </div>
         </div>
 
@@ -852,12 +624,7 @@
       </section>
 
       <section class="section" id="system" aria-labelledby="system-title">
-        <div class="section-head">
-          <div class="section-index">01.1</div>
-          <h2 class="section-title" id="system-title">Live system readout</h2>
-          <p class="section-deck">A current-state view only. The values below are refreshed from the production read endpoints. “Allowed” means the policy currently permits transfer; it does not rewrite historical settlement states.</p>
-        </div>
-
+        <div class="section-head"><div class="section-index">01.1</div><h2 class="section-title" id="system-title">Live system readout</h2><p class="section-deck">A current-state view only. The values below are refreshed from the production read endpoints. “Allowed” means the policy currently permits transfer; it does not rewrite historical settlement states.</p></div>
         <div class="system-grid">
           <div class="readout" id="readout">
             <div class="readout-row"><span class="readout-key">Network</span><span class="readout-value" id="r-network">Monad Testnet</span></div>
@@ -866,10 +633,10 @@
             <div class="readout-row"><span class="readout-key">Vault balance</span><span class="readout-value" id="r-balance">—</span></div>
             <div class="readout-row"><span class="readout-key">Vault</span><span class="readout-value" id="r-vault">—</span></div>
             <div class="readout-row"><span class="readout-key">Policy</span><span class="readout-value" id="r-policy">—</span></div>
+            <div class="readout-row"><span class="readout-key">Check amount</span><span class="readout-value" id="r-check-amount">—</span></div>
             <div class="readout-row"><span class="readout-key">Block</span><span class="readout-value" id="r-block">—</span></div>
             <div class="readout-row"><span class="readout-key">Write gate</span><span class="readout-value warn">Closed</span></div>
           </div>
-
           <div class="policy-roster" id="policy-roster">
             <div class="roster-row"><span>01</span><span class="roster-wallet">0x7Af3…5dCf / CA</span><span class="roster-state unknown" data-roster="1">Checking</span></div>
             <div class="roster-row"><span>02</span><span class="roster-wallet">0x067d…B85E / CA</span><span class="roster-state unknown" data-roster="2">Checking</span></div>
@@ -881,75 +648,49 @@
       </section>
 
       <section class="section" id="execution" aria-labelledby="execution-title">
-        <div class="section-head">
-          <div class="section-index">02</div>
-          <h2 class="section-title" id="execution-title">Verified execution</h2>
-          <p class="section-deck">This is a replay of the fresh Level-3 execution already verified on Monad Testnet. It is presentation-only: the replay button submits no blockchain transaction and makes no Cleanverse mutation.</p>
-        </div>
-
+        <div class="section-head"><div class="section-index">02</div><h2 class="section-title" id="execution-title">Verified execution</h2><p class="section-deck">This is a replay of the fresh Level-3 execution already verified on Monad Testnet. It is presentation-only: the replay button submits no blockchain transaction and makes no Cleanverse mutation.</p></div>
         <div class="execution-grid">
           <article class="execution-state">
-            <div class="micro-label">T0 / After distribute</div>
-            <h3>One allocation held</h3>
-            <div class="execution-line"><span>01</span><span>Holder 1</span><span class="state-paid">PAID</span></div>
-            <div class="execution-line"><span>02</span><span>Holder 2</span><span class="state-paid">PAID</span></div>
-            <div class="execution-line"><span>03</span><span>Holder 3</span><span class="state-paid">PAID</span></div>
-            <div class="execution-line"><span>04</span><span>Holder 4</span><span class="state-paid">PAID</span></div>
-            <div class="execution-line"><span>05</span><span>Holder 5</span><span class="state-suspended">SUSPENDED</span></div>
+            <div class="micro-label">T0 / After distribute</div><h3>One allocation held</h3>
+            <div class="execution-line"><span>01</span><span>Holder 1</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>02</span><span>Holder 2</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>03</span><span>Holder 3</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>04</span><span>Holder 4</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>05</span><span>Holder 5</span><span class="state-suspended">SUSPENDED</span></div>
             <div class="accounted"><strong>5 / 5</strong><span>Accounted</span></div>
           </article>
-
           <div class="execution-arrow" aria-hidden="true">→</div>
-
           <article class="execution-state">
-            <div class="micro-label">T1 / After fresh recheck</div>
-            <h3>The same allocation released</h3>
-            <div class="execution-line"><span>01</span><span>Holder 1</span><span class="state-paid">PAID</span></div>
-            <div class="execution-line"><span>02</span><span>Holder 2</span><span class="state-paid">PAID</span></div>
-            <div class="execution-line"><span>03</span><span>Holder 3</span><span class="state-paid">PAID</span></div>
-            <div class="execution-line"><span>04</span><span>Holder 4</span><span class="state-paid">PAID</span></div>
-            <div class="execution-line"><span>05</span><span>Holder 5</span><span class="state-released">RELEASED</span></div>
+            <div class="micro-label">T1 / After fresh recheck</div><h3>The same allocation released</h3>
+            <div class="execution-line"><span>01</span><span>Holder 1</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>02</span><span>Holder 2</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>03</span><span>Holder 3</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>04</span><span>Holder 4</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>05</span><span>Holder 5</span><span class="state-released">RELEASED</span></div>
             <div class="accounted"><strong>5 / 5</strong><span>Accounted</span></div>
           </article>
         </div>
       </section>
 
       <section class="section" id="evidence" aria-labelledby="evidence-title">
-        <div class="section-head">
-          <div class="section-index">03</div>
-          <h2 class="section-title" id="evidence-title">Execution ledger</h2>
-          <p class="section-deck">The product story resolves to verifiable execution evidence. Historical SPNS01 material remains archived separately; the rows below are the fresh SPNS03 Level-3 lifecycle.</p>
-        </div>
-
+        <div class="section-head"><div class="section-index">03</div><h2 class="section-title" id="evidence-title">Execution ledger</h2><p class="section-deck">The product story resolves to verifiable execution evidence. Historical SPNS01 material remains archived separately; the rows below are the fresh SPNS03 Level-3 lifecycle.</p></div>
         <div class="ledger">
           <div class="ledger-row"><span class="micro-label">52324194</span><strong class="ledger-kind">Mint</strong><span class="ledger-hash">0xfa522a34a7351976ffe1318b00b06451f9eceaa70a791a32647a2bbba8173314</span><span class="verified">✓ Verified</span></div>
           <div class="ledger-row"><span class="micro-label">52324424</span><strong class="ledger-kind">Distribute</strong><span class="ledger-hash">0x1fbd3fb0cef2607ac8d4d4a7daffb82b2a8ef3d127a294ef25d643a1182f06d2</span><span class="verified">✓ Verified</span></div>
           <div class="ledger-row"><span class="micro-label">52324821</span><strong class="ledger-kind">Release</strong><span class="ledger-hash">0x21ab0250fd0076a5036e3035f37b344acba0c91ef5234bfb51c77d40c7973f61</span><span class="verified">✓ Verified</span></div>
         </div>
-
-        <div class="archive-cta">
-          <p>The original evidence reconstruction is preserved as an archive. It is intentionally distinct from this live SPNS03 surface and remains useful for the complete historical proof trail.</p>
-          <a class="archive-link" href="/demo/" target="_blank" rel="noopener">Open evidence archive ↗</a>
-        </div>
+        <div class="archive-cta"><p>The original evidence reconstruction is preserved as an archive. It is intentionally distinct from this live SPNS03 surface and remains useful for the complete historical proof trail.</p><a class="archive-link" href="/demo/" target="_blank" rel="noopener">Open evidence archive ↗</a></div>
       </section>
     </main>
 
-    <footer class="telemetry" aria-label="System telemetry">
-      <span>Asset <strong id="t-asset">SPNS03</strong></span>
-      <span>Vault <strong id="t-vault">0x8a6E…F7C4</strong></span>
-      <span>Block <strong id="t-block">—</strong></span>
-      <span>Policy check <strong id="t-check">—</strong></span>
-      <span class="health">● Read-only runtime</span>
-    </footer>
+    <footer class="telemetry" aria-label="System telemetry"><span>Asset <strong id="t-asset">SPNS03</strong></span><span>Vault <strong id="t-vault">0x8a6E…F7C4</strong></span><span>Block <strong id="t-block">—</strong></span><span>Policy check <strong id="t-check">—</strong></span><span class="health">● Read-only runtime</span></footer>
   </div>
 
   <script>
     const rows = [...document.querySelectorAll('.allocation-row')];
     const replayBtn = document.getElementById('replay-btn');
     const liveBtn = document.getElementById('live-btn');
+    const chamber = document.getElementById('chamber');
+    const refreshIntervalMs = 20000;
     let liveEligibility = null;
     let liveStatus = null;
     let replaying = false;
+    let refreshing = false;
+    let lastReadAt = null;
+    let nextReadAt = Date.now() + refreshIntervalMs;
+    let previousBlock = null;
 
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
     const shortAddr = (value) => value ? `${value.slice(0, 6)}…${value.slice(-4)}` : '—';
@@ -959,6 +700,22 @@
       if (!row) return;
       row.dataset.state = state;
       row.querySelector('.allocation-state').textContent = label;
+    }
+
+    function pulseRow(holder) {
+      const row = rows.find(item => Number(item.dataset.holder) === Number(holder));
+      if (!row) return;
+      row.classList.remove('scan-wave');
+      void row.offsetWidth;
+      row.classList.add('scan-wave');
+      window.setTimeout(() => row.classList.remove('scan-wave'), 800);
+    }
+
+    function gateFlash() {
+      chamber.classList.remove('live-flash');
+      void chamber.offsetWidth;
+      chamber.classList.add('live-flash');
+      window.setTimeout(() => chamber.classList.remove('live-flash'), 800);
     }
 
     function setSummary(number, copy) {
@@ -977,16 +734,20 @@
       return ['unknown', 'UNKNOWN'];
     }
 
-    function renderLivePolicy() {
+    async function animateLivePolicy() {
       if (!liveEligibility?.holders) return;
-
       let allowed = 0;
+      let blocked = 0;
       let unknown = 0;
 
       for (const holder of liveEligibility.holders) {
+        setRow(holder.holder, 'scanning', 'SCANNING');
+        pulseRow(holder.holder);
+        await sleep(110);
         const [state, label] = classifyLive(holder);
         setRow(holder.holder, state, label);
         if (state === 'allowed') allowed++;
+        if (state === 'blocked') blocked++;
         if (state === 'unknown') unknown++;
 
         const roster = document.querySelector(`[data-roster="${holder.holder}"]`);
@@ -996,15 +757,21 @@
         }
       }
 
+      gateFlash();
       setMode('Live policy state', `Fresh canTransfer() / ${liveEligibility.isoTime ? new Date(liveEligibility.isoTime).toLocaleTimeString() : 'now'}`);
-      setSummary(`${allowed} / 5`, unknown ? `${unknown} policy result${unknown === 1 ? '' : 's'} unknown. UNKNOWN is not BLOCKED.` : 'Currently eligible. This is current policy state, not historical settlement state.');
+      setSummary(`${allowed} / 5`, unknown ? `${unknown} result${unknown === 1 ? '' : 's'} UNKNOWN. UNKNOWN is never treated as BLOCKED.` : blocked ? `${allowed} ALLOWED · ${blocked} BLOCKED · live policy state only.` : 'All five are currently eligible. This does not rewrite verified historical settlement states.');
       document.getElementById('meta-reality').textContent = liveEligibility.realityClass || 'LIVE_POLICY_CHECK';
+      document.getElementById('live-field').textContent = `${allowed} ALLOWED`;
+      document.getElementById('live-field').className = `live-strip-value ${unknown || blocked ? 'warn' : 'acid'}`;
+      document.getElementById('live-unknown').textContent = String(unknown);
       replayBtn.disabled = false;
       replayBtn.textContent = 'Replay verified execution →';
     }
 
     function renderSystem() {
       if (liveStatus) {
+        const blockChanged = previousBlock != null && Number(liveStatus.blockNumber) !== Number(previousBlock);
+        previousBlock = liveStatus.blockNumber;
         document.getElementById('r-chain').textContent = liveStatus.chainId ?? '—';
         document.getElementById('r-asset').textContent = liveStatus.tokenSymbol ?? 'SPNS03';
         document.getElementById('r-balance').textContent = `${liveStatus.vaultBalance ?? '—'} ${liveStatus.tokenSymbol ?? 'SPNS03'}`;
@@ -1015,22 +782,25 @@
         document.getElementById('t-asset').textContent = liveStatus.tokenSymbol ?? 'SPNS03';
         document.getElementById('t-vault').textContent = shortAddr(liveStatus.vault);
         document.getElementById('t-block').textContent = liveStatus.blockNumber ?? '—';
+        document.getElementById('live-block').textContent = liveStatus.blockNumber ?? '—';
+        if (blockChanged) gateFlash();
       }
 
       if (liveEligibility) {
         document.getElementById('r-policy').textContent = liveEligibility.policy ?? '—';
+        document.getElementById('r-check-amount').textContent = liveEligibility.checkAmount ? `${liveEligibility.checkAmount} raw` : '—';
         document.getElementById('meta-policy').textContent = shortAddr(liveEligibility.policy);
         document.getElementById('t-check').textContent = liveEligibility.isoTime ? new Date(liveEligibility.isoTime).toLocaleTimeString() : '—';
       }
     }
 
-    async function refreshLive() {
-      if (replaying) return;
+    async function refreshLive({ manual = false } = {}) {
+      if (replaying || refreshing || document.hidden) return;
+      refreshing = true;
       liveBtn.disabled = true;
       liveBtn.textContent = 'Checking…';
-      setMode('Live policy state', 'Querying production read endpoints');
-      setSummary('— / 5', 'Refreshing current chain and policy state.');
-      rows.forEach((row, i) => setRow(i + 1, 'queued', 'Checking'));
+      setMode('Live policy state', manual ? 'Manual read / production endpoints' : 'Automatic read / production endpoints');
+      rows.forEach((row, i) => setRow(i + 1, 'queued', 'CHECKING'));
 
       try {
         const [statusRes, eligibilityRes] = await Promise.all([
@@ -1040,60 +810,66 @@
 
         const statusBody = await statusRes.json();
         const eligibilityBody = await eligibilityRes.json();
-
         if (!statusRes.ok) throw new Error(statusBody.error || 'Live chain state unavailable');
         if (!eligibilityRes.ok) throw new Error(eligibilityBody.error || 'Live policy state unavailable');
 
         liveStatus = statusBody;
         liveEligibility = eligibilityBody;
+        lastReadAt = Date.now();
+        nextReadAt = lastReadAt + refreshIntervalMs;
         renderSystem();
-        renderLivePolicy();
+        await animateLivePolicy();
       } catch (error) {
         rows.forEach((row, i) => setRow(i + 1, 'unknown', 'UNKNOWN'));
         setMode('Live policy state', 'Read unavailable');
-        setSummary('0 / 5', 'Live read failed. UNKNOWN is not equivalent to BLOCKED.');
+        setSummary('— / 5', 'Live read failed. UNKNOWN is not equivalent to BLOCKED.');
         document.getElementById('meta-reality').textContent = 'LIVE_READ_UNAVAILABLE';
+        document.getElementById('live-field').textContent = 'READ ERROR';
+        document.getElementById('live-field').className = 'live-strip-value warn';
+        document.getElementById('live-unknown').textContent = '5';
+        nextReadAt = Date.now() + refreshIntervalMs;
       } finally {
+        refreshing = false;
         liveBtn.disabled = false;
         liveBtn.textContent = 'Refresh live';
       }
     }
 
     async function replaySettlement() {
-      if (replaying) return;
+      if (replaying || refreshing) return;
       replaying = true;
       replayBtn.disabled = true;
       liveBtn.disabled = true;
       document.getElementById('meta-reality').textContent = 'VERIFIED_EXECUTION_REPLAY';
+      document.getElementById('live-field').textContent = 'REPLAY MODE';
+      document.getElementById('live-field').className = 'live-strip-value';
       setMode('Verified execution', 'T0 / Initializing five allocations');
       setSummary('0 / 5', 'Presentation replay only. No transaction is being submitted.');
       rows.forEach((row, i) => setRow(i + 1, 'queued', 'QUEUED'));
-      await sleep(550);
+      await sleep(500);
 
       for (let holder = 1; holder <= 5; holder++) {
         setMode('Verified execution', `Policy scan / allocation 0${holder}`);
         setRow(holder, 'recheck', 'SCANNING');
-        await sleep(380);
-        if (holder < 5) {
-          setRow(holder, 'paid', 'PAID');
-        } else {
-          setRow(holder, 'suspended', 'SUSPENDED');
-        }
-        await sleep(180);
+        pulseRow(holder);
+        await sleep(330);
+        if (holder < 5) setRow(holder, 'paid', 'PAID');
+        else setRow(holder, 'suspended', 'SUSPENDED');
+        await sleep(150);
       }
 
       setMode('Verified execution', 'T0 / Distribution settled with one hold');
       setSummary('5 / 5', '4 PAID + 1 SUSPENDED. Every allocation remains accounted for.');
-      await sleep(1500);
-
+      await sleep(1400);
       setMode('Verified execution', 'Fresh eligibility / allocation 05');
       setRow(5, 'recheck', 'RECHECK');
-      await sleep(1000);
-
+      pulseRow(5);
+      await sleep(900);
       setMode('Verified execution', 'T1 / Same allocation released');
       setRow(5, 'released', 'RELEASED');
+      gateFlash();
       setSummary('5 / 5', '4 PAID + 1 RELEASED. Same allocation, newly eligible, still accounted for.');
-      await sleep(500);
+      await sleep(450);
 
       replayBtn.disabled = false;
       replayBtn.textContent = 'Replay again →';
@@ -1102,8 +878,24 @@
       replaying = false;
     }
 
+    function updateClock() {
+      const now = Date.now();
+      const ageSeconds = lastReadAt ? Math.max(0, Math.floor((now - lastReadAt) / 1000)) : null;
+      const nextSeconds = Math.max(0, Math.ceil((nextReadAt - now) / 1000));
+      document.getElementById('live-age').textContent = ageSeconds == null ? '—' : `${ageSeconds}s`;
+      document.getElementById('live-next').textContent = `${nextSeconds}s`;
+      document.getElementById('live-scan-cell').style.setProperty('--refresh-progress', String(Math.min(1, Math.max(0, 1 - nextSeconds / (refreshIntervalMs / 1000)))));
+
+      if (!replaying && !refreshing && !document.hidden && now >= nextReadAt) refreshLive();
+    }
+
     replayBtn.addEventListener('click', replaySettlement);
-    liveBtn.addEventListener('click', refreshLive);
+    liveBtn.addEventListener('click', () => refreshLive({ manual: true }));
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && !replaying && Date.now() >= nextReadAt) refreshLive();
+    });
+
+    window.setInterval(updateClock, 1000);
     refreshLive();
   </script>
 </body>
