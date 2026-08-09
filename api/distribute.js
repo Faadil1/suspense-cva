@@ -25,22 +25,12 @@ export async function handler(req, res, deps = {}) {
     scope: 'distribute',
   });
 
-  if (!ctx.ok) {
-    return error(res, ctx.status, ctx.error);
-  }
+  if (!ctx.ok) return error(res, ctx.status, ctx.error);
 
   const {
-    dryRun,
-    updateOperationStateFn,
-    operationId,
-    operationScope,
-    policy,
-    runtimeVault,
-    getTokenAmount,
-    getAllocationIds,
-    vault,
+    dryRun, updateOperationStateFn, operationId, operationScope,
+    policy, runtimeVault, getTokenAmount, getAllocationIds, vault,
   } = ctx;
-
   const amount = getTokenAmount(6);
   const allocationIds = getAllocationIds(operationId);
   const recipients = DEMO_COHORT.map((m) => m.address);
@@ -48,29 +38,25 @@ export async function handler(req, res, deps = {}) {
 
   if (dryRun) {
     return res.status(200).json({
-      ok: true,
-      dryRun: true,
-      signer: EXPECTED_DISTRIBUTE_SIGNER,
-      chainId: ctx.chainId,
-      runtimeVault,
-      historicalVault: ctx.historicalVault,
-      allocationIds,
-      recipients,
-      amounts: amounts.map(String),
+      ok: true, dryRun: true, signer: EXPECTED_DISTRIBUTE_SIGNER,
+      chainId: ctx.chainId, runtimeVault, historicalVault: ctx.historicalVault,
+      allocationIds, recipients, amounts: amounts.map(String),
       writeGateMode: ctx.writeGateMode,
-      noReservation: true,
-      noSigning: true,
-      noBroadcast: true,
+      noReservation: true, noSigning: true, noBroadcast: true,
     });
   }
 
   try {
     const signerSecret = process.env.SUSPENSE_DEMO_SIGNER_PRIVATE_KEY;
-    if (!signerSecret) return error(res, 503, 'SIGNER_NOT_CONFIGURED');
+    if (!signerSecret) {
+      await updateOperationStateFn(operationScope, operationId, OpState.FAILED);
+      return error(res, 503, 'SIGNER_NOT_CONFIGURED');
+    }
 
     const wallet = new Wallet(signerSecret, vault.runner.provider);
     const signer = await wallet.getAddress();
     if (signer.toLowerCase() !== EXPECTED_DISTRIBUTE_SIGNER.toLowerCase()) {
+      await updateOperationStateFn(operationScope, operationId, OpState.FAILED);
       return error(res, 503, 'SIGNER_MISMATCH');
     }
 
@@ -86,25 +72,15 @@ export async function handler(req, res, deps = {}) {
     await updateOperationStateFn(operationScope, operationId, OpState.CONFIRMED);
 
     return res.status(200).json({
-      ok: true,
-      signer: EXPECTED_DISTRIBUTE_SIGNER,
-      chainId: ctx.chainId,
-      runtimeVault,
-      historicalVault: ctx.historicalVault,
-      allocationIds,
-      recipients,
-      amounts: amounts.map(String),
-      livePolicyResults,
-      writeGateMode: ctx.writeGateMode,
-      txHash: receipt.hash,
-      blockNumber: receipt.blockNumber,
-      zeroBlockchainTransactions: false,
+      ok: true, signer: EXPECTED_DISTRIBUTE_SIGNER, chainId: ctx.chainId,
+      runtimeVault, historicalVault: ctx.historicalVault,
+      allocationIds, recipients, amounts: amounts.map(String), livePolicyResults,
+      writeGateMode: ctx.writeGateMode, txHash: receipt.hash,
+      blockNumber: receipt.blockNumber, zeroBlockchainTransactions: false,
     });
   } catch (err) {
     await updateOperationStateFn(operationScope, operationId, OpState.FAILED);
-    if (isPolicyGuardFailure(err)) {
-      return error(res, 503, 'POLICY_CHECK_UNAVAILABLE');
-    }
+    if (isPolicyGuardFailure(err)) return error(res, 503, 'POLICY_CHECK_UNAVAILABLE');
     return error(res, 503, 'DISTRIBUTE_FAILED');
   }
 }
