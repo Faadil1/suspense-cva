@@ -3,655 +3,1108 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Suspense CVA — Evidence Reconstruction</title>
+  <meta name="color-scheme" content="dark" />
+  <title>Suspense — Settlement Chamber</title>
   <style>
-    /* ── Reset & Base ─────────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; }
+    * { margin: 0; }
 
     :root {
-      --bg:           #0a0a0f;
-      --surface:      #12121a;
-      --surface2:     #1a1a26;
-      --border:       #2a2a3a;
-      --accent:       #6b4fff;
-      --accent-light: #8b6fff;
-      --green:        #22c55e;
-      --red:          #ef4444;
-      --amber:        #f59e0b;
-      --text:         #e2e2f0;
-      --text-muted:   #8080a0;
-      --text-dim:     #505070;
-      --mono:         'SF Mono', 'Consolas', 'Courier New', monospace;
+      --void: #070706;
+      --paper: #eceae2;
+      --muted: #92928a;
+      --dim: #5d5d57;
+      --line: #2a2a25;
+      --line-strong: #44443d;
+      --acid: #d9ff43;
+      --hold: #ffb000;
+      --release: #8bffb0;
+      --danger: #ff5a4f;
+      --unknown: #a7a79f;
+      --display: "Arial Narrow", "Helvetica Neue Condensed", "Roboto Condensed", Arial, sans-serif;
+      --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --gate: 62%;
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      font-size: 14px;
-      line-height: 1.6;
       min-height: 100vh;
+      background: var(--void);
+      color: var(--paper);
+      font-family: var(--mono);
+      font-size: 14px;
+      line-height: 1.45;
+      overflow-x: hidden;
     }
 
-    /* ── Layout ───────────────────────────────────────────────────── */
-    .app {
-      max-width: 900px;
+    button, a { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+
+    ::selection {
+      background: var(--acid);
+      color: var(--void);
+    }
+
+    .shell {
+      width: min(1480px, calc(100% - 48px));
       margin: 0 auto;
-      padding: 24px 16px 64px;
     }
 
-    /* ── Header ───────────────────────────────────────────────────── */
-    .header {
-      margin-bottom: 24px;
-    }
-
-    .header-brand {
-      display: flex;
+    .masthead {
+      min-height: 82px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
+      border-bottom: 1px solid var(--line-strong);
+      position: relative;
+      z-index: 20;
     }
 
-    .brand-mark {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-
-    .brand-name {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-    }
-
-    .brand-sub {
-      font-size: 12px;
-      color: var(--text-muted);
-      letter-spacing: 0.5px;
-    }
-
-    /* ── Mode toggle ──────────────────────────────────────────────── */
-    .mode-bar {
-      display: flex;
-      gap: 2px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 4px;
-      margin-bottom: 24px;
+    .wordmark {
+      display: inline-flex;
+      align-items: stretch;
       width: fit-content;
+      font-family: var(--display);
+      font-stretch: condensed;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: .03em;
     }
 
-    .mode-btn {
-      padding: 8px 20px;
-      border: none;
-      border-radius: 7px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.8px;
+    .wordmark-gate {
+      width: 2px;
+      min-height: 24px;
+      margin: -4px 3px;
+      background: var(--paper);
+      position: relative;
+    }
+
+    .wordmark-gate::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: -3px;
+      width: 8px;
+      height: 1px;
+      background: var(--paper);
+    }
+
+    .nav {
+      display: flex;
+      gap: 26px;
+      align-items: center;
+    }
+
+    .nav a {
+      text-decoration: none;
       text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      background: transparent;
-      color: var(--text-muted);
+      font-size: 10px;
+      letter-spacing: .14em;
+      color: var(--muted);
+      transition: color 120ms ease;
     }
 
-    .mode-btn.active {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 2px 8px rgba(107, 79, 255, 0.4);
-    }
+    .nav a:hover,
+    .nav a:focus-visible { color: var(--paper); }
 
-    .mode-btn:not(.active):hover {
-      color: var(--text);
-      background: var(--surface2);
-    }
-
-    /* ── Reality banner ───────────────────────────────────────────── */
-    .reality-banner {
+    .live-lockup {
+      justify-self: end;
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
       text-transform: uppercase;
-      margin-bottom: 20px;
+      font-size: 10px;
+      letter-spacing: .12em;
+      color: var(--muted);
     }
 
-    .reality-banner.live {
-      background: rgba(34, 197, 94, 0.08);
-      border: 1px solid rgba(34, 197, 94, 0.25);
-      color: var(--green);
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--acid);
+      box-shadow: 0 0 0 1px var(--acid);
+      animation: pulse 1.8s steps(2, end) infinite;
     }
 
-    .reality-banner.historical {
-      background: rgba(107, 79, 255, 0.08);
-      border: 1px solid rgba(107, 79, 255, 0.25);
-      color: var(--accent-light);
-    }
+    @keyframes pulse { 50% { opacity: .2; } }
 
-    .banner-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: currentColor;
-      flex-shrink: 0;
-    }
-
-    .banner-dot.pulse {
-      animation: pulse-dot 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    /* ── Cards ────────────────────────────────────────────────────── */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-
-    .card-title {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-
-    /* ── Stat grid ────────────────────────────────────────────────── */
-    .stat-grid {
+    .hero {
+      min-height: calc(100vh - 82px);
+      padding: 48px 0 34px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 24px;
+      border-bottom: 1px solid var(--line-strong);
     }
 
-    .stat {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 16px;
+    .hero-top {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 380px);
+      gap: 48px;
+      align-items: end;
     }
 
-    .stat-label {
+    .eyebrow,
+    .section-index,
+    .micro-label {
+      text-transform: uppercase;
       font-size: 10px;
+      letter-spacing: .15em;
+      color: var(--muted);
+    }
+
+    .hero-title {
+      margin-top: 12px;
+      max-width: 1050px;
+      font-family: var(--display);
+      font-size: clamp(58px, 8.8vw, 150px);
+      line-height: .82;
+      letter-spacing: -.055em;
+      text-transform: uppercase;
+      font-weight: 900;
+      text-wrap: balance;
+    }
+
+    .hero-title .line-2 { display: block; color: var(--muted); }
+
+    .hero-copy {
+      border-top: 1px solid var(--line-strong);
+      padding-top: 14px;
+      color: var(--muted);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .hero-copy strong {
+      color: var(--paper);
       font-weight: 600;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 6px;
     }
 
-    .stat-value {
-      font-family: var(--mono);
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.2;
+    .chamber {
+      position: relative;
+      min-height: 390px;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line-strong);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
     }
 
-    .stat-value.highlight { color: var(--accent-light); }
-    .stat-value.green    { color: var(--green); }
-    .stat-value.amber    { color: var(--amber); }
-
-    .stat-sub {
-      font-size: 10px;
-      color: var(--text-dim);
-      margin-top: 3px;
-      font-family: var(--mono);
+    .chamber::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: var(--gate);
+      width: 1px;
+      background: var(--paper);
+      opacity: .55;
+      z-index: 2;
     }
 
-    /* ── Eligibility table ────────────────────────────────────────── */
-    .holder-table {
-      width: 100%;
-      border-collapse: collapse;
+    .chamber::after {
+      content: "POLICY GATE";
+      position: absolute;
+      top: 0;
+      left: var(--gate);
+      transform: translate(-50%, -100%);
+      padding: 0 8px 7px;
+      background: var(--void);
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: .14em;
+      white-space: nowrap;
     }
 
-    .holder-table th {
-      text-align: left;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      padding: 0 12px 10px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .holder-table td {
-      padding: 12px 12px 12px 0;
-      border-bottom: 1px solid rgba(42, 42, 58, 0.5);
-      font-size: 13px;
-      vertical-align: middle;
-    }
-
-    .holder-table tr:last-child td { border-bottom: none; }
-
-    .holder-table td.mono {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .badge {
-      display: inline-flex;
+    .chamber-head,
+    .chamber-foot {
+      min-height: 50px;
+      display: grid;
+      grid-template-columns: 1fr auto;
       align-items: center;
-      gap: 5px;
-      padding: 3px 10px;
-      border-radius: 100px;
+      gap: 20px;
+    }
+
+    .chamber-head { border-bottom: 1px solid var(--line); }
+    .chamber-foot { border-top: 1px solid var(--line); }
+
+    .chamber-mode {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .chamber-mode strong {
+      font-family: var(--display);
+      font-size: 18px;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    .phase-readout {
+      text-align: right;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .allocation-list {
+      display: grid;
+      align-content: center;
+      min-height: 285px;
+    }
+
+    .allocation-row {
+      min-height: 54px;
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr) 126px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      position: relative;
+    }
+
+    .allocation-row:last-child { border-bottom: 0; }
+
+    .holder-id {
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
       font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
     }
 
-    .badge.eligible {
-      background: rgba(34, 197, 94, 0.12);
-      color: var(--green);
-      border: 1px solid rgba(34, 197, 94, 0.2);
+    .holder-id strong {
+      color: var(--paper);
+      font-size: 14px;
+      font-weight: 500;
     }
 
-    .badge.ineligible {
-      background: rgba(239, 68, 68, 0.10);
-      color: var(--red);
-      border: 1px solid rgba(239, 68, 68, 0.2);
+    .holder-id span { color: var(--dim); }
+
+    .track {
+      height: 18px;
+      position: relative;
+      margin: 0 18px;
     }
 
-    .badge.unknown {
-      background: rgba(128, 128, 160, 0.10);
-      color: var(--text-muted);
-      border: 1px solid var(--border);
+    .track::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 1px;
+      background: var(--line-strong);
     }
 
-    /* ── Controls ─────────────────────────────────────────────────── */
-    .controls {
+    .track::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: calc(50% - 2px);
+      width: 5px;
+      height: 5px;
+      background: var(--line-strong);
+    }
+
+    .runner {
+      position: absolute;
+      z-index: 3;
+      top: 50%;
+      left: 4%;
+      width: 10px;
+      height: 10px;
+      transform: translate(-50%, -50%);
+      background: var(--paper);
+      transition: left 620ms cubic-bezier(.2,.75,.15,1), width 160ms ease, background 160ms ease;
+    }
+
+    .runner::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: 100%;
+      width: 0;
+      height: 1px;
+      background: currentColor;
+      transition: width 620ms cubic-bezier(.2,.75,.15,1);
+    }
+
+    .allocation-state {
+      justify-self: end;
+      text-align: right;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      min-width: 110px;
+    }
+
+    .allocation-row[data-state="allowed"] .runner,
+    .allocation-row[data-state="paid"] .runner,
+    .allocation-row[data-state="released"] .runner { left: 91%; }
+
+    .allocation-row[data-state="blocked"] .runner,
+    .allocation-row[data-state="suspended"] .runner,
+    .allocation-row[data-state="recheck"] .runner { left: var(--gate); }
+
+    .allocation-row[data-state="unknown"] .runner { left: 48%; }
+
+    .allocation-row[data-state="allowed"] .runner,
+    .allocation-row[data-state="paid"] .runner { background: var(--acid); color: var(--acid); }
+
+    .allocation-row[data-state="blocked"] .runner,
+    .allocation-row[data-state="suspended"] .runner { background: var(--hold); color: var(--hold); width: 18px; }
+
+    .allocation-row[data-state="released"] .runner { background: var(--release); color: var(--release); }
+    .allocation-row[data-state="unknown"] .runner { background: var(--unknown); color: var(--unknown); }
+    .allocation-row[data-state="recheck"] .runner { background: var(--paper); color: var(--paper); animation: scan 500ms steps(2,end) infinite; }
+
+    .allocation-row[data-state="allowed"] .allocation-state,
+    .allocation-row[data-state="paid"] .allocation-state { color: var(--acid); }
+    .allocation-row[data-state="blocked"] .allocation-state,
+    .allocation-row[data-state="suspended"] .allocation-state { color: var(--hold); }
+    .allocation-row[data-state="released"] .allocation-state { color: var(--release); }
+    .allocation-row[data-state="unknown"] .allocation-state { color: var(--unknown); }
+
+    @keyframes scan { 50% { opacity: .25; } }
+
+    .chamber-summary {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .summary-number {
+      font-family: var(--display);
+      font-size: clamp(30px, 3.5vw, 56px);
+      line-height: 1;
+      letter-spacing: -.04em;
+      white-space: nowrap;
+    }
+
+    .summary-copy {
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 9px;
+      letter-spacing: .12em;
+      max-width: 260px;
+    }
+
+    .chamber-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
+      gap: 8px;
     }
 
-    .btn {
-      padding: 8px 18px;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+    .action {
+      border: 1px solid var(--paper);
+      background: transparent;
+      min-height: 38px;
+      padding: 0 14px;
+      text-transform: uppercase;
+      letter-spacing: .11em;
+      font-size: 9px;
       cursor: pointer;
-      transition: all 0.15s ease;
-      background: var(--surface2);
-      color: var(--text);
+      transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
     }
 
-    .btn:hover:not(:disabled) {
-      border-color: var(--accent);
-      color: var(--accent-light);
+    .action:hover:not(:disabled),
+    .action:focus-visible {
+      background: var(--paper);
+      color: var(--void);
+      outline: none;
     }
 
-    .btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
+    .action.secondary { border-color: var(--line-strong); color: var(--muted); }
+    .action:disabled { cursor: wait; opacity: .45; }
+
+    .hero-meta {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--line);
     }
 
-    .btn.primary {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
+    .meta-cell {
+      padding-top: 10px;
+      border-right: 1px solid var(--line);
     }
 
-    .btn.primary:hover:not(:disabled) {
-      background: var(--accent-light);
-      border-color: var(--accent-light);
-      color: #fff;
-    }
+    .meta-cell:not(:first-child) { padding-left: 16px; }
+    .meta-cell:last-child { border-right: 0; }
 
-    .refresh-time {
+    .meta-value {
+      margin-top: 5px;
       font-size: 11px;
-      color: var(--text-dim);
-      font-family: var(--mono);
+      color: var(--paper);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    /* ── Error / loading ──────────────────────────────────────────── */
-    .state-msg {
-      padding: 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      text-align: center;
+    .section {
+      padding: 96px 0;
+      border-bottom: 1px solid var(--line-strong);
     }
 
-    .state-msg.loading {
-      background: var(--surface2);
-      color: var(--text-muted);
-      border: 1px solid var(--border);
+    .section-head {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr) minmax(220px, 420px);
+      gap: 28px;
+      align-items: start;
+      margin-bottom: 54px;
     }
 
-    .state-msg.error {
-      background: rgba(239, 68, 68, 0.08);
-      color: var(--red);
-      border: 1px solid rgba(239, 68, 68, 0.2);
+    .section-title {
+      font-family: var(--display);
+      font-size: clamp(36px, 5.6vw, 88px);
+      line-height: .92;
+      letter-spacing: -.045em;
+      text-transform: uppercase;
+      font-weight: 900;
     }
 
-    /* ── EVIDENCE HISTORY panel ───────────────────────────────────── */
-    .history-panel {
-      text-align: center;
-      padding: 48px 24px;
+    .section-deck {
+      color: var(--muted);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+      font-size: 14px;
     }
 
-    .history-panel h2 {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
+    .system-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+      gap: 0;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line-strong);
     }
 
-    .history-panel p {
-      color: var(--text-muted);
-      font-size: 13px;
-      max-width: 480px;
-      margin: 0 auto 28px;
-      line-height: 1.7;
+    .readout,
+    .policy-roster { padding: 26px 0; }
+    .readout { border-right: 1px solid var(--line-strong); padding-right: 36px; }
+    .policy-roster { padding-left: 36px; }
+
+    .readout-row,
+    .roster-row {
+      min-height: 48px;
+      display: grid;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
     }
 
-    .history-link {
+    .readout-row { grid-template-columns: 170px minmax(0,1fr); }
+    .roster-row { grid-template-columns: 52px 1fr auto; gap: 12px; }
+    .readout-row:last-child,
+    .roster-row:last-child { border-bottom: 0; }
+
+    .readout-key,
+    .roster-wallet {
+      color: var(--dim);
+      text-transform: uppercase;
+      font-size: 9px;
+      letter-spacing: .11em;
+    }
+
+    .readout-value {
+      justify-self: end;
+      text-align: right;
+      color: var(--paper);
+      font-size: 11px;
+      word-break: break-word;
+    }
+
+    .readout-value.signal { color: var(--acid); }
+    .readout-value.warn { color: var(--hold); }
+
+    .roster-state {
+      text-transform: uppercase;
+      font-size: 9px;
+      letter-spacing: .11em;
+    }
+
+    .roster-state.allowed { color: var(--acid); }
+    .roster-state.blocked { color: var(--hold); }
+    .roster-state.unknown { color: var(--unknown); }
+
+    .execution-grid {
+      display: grid;
+      grid-template-columns: 1fr 120px 1fr;
+      align-items: stretch;
+      border-top: 1px solid var(--line-strong);
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    .execution-state { padding: 30px 0; }
+    .execution-state:first-child { padding-right: 34px; }
+    .execution-state:last-child { padding-left: 34px; }
+
+    .execution-arrow {
+      display: grid;
+      place-items: center;
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+      color: var(--muted);
+      font-family: var(--display);
+      font-size: 44px;
+    }
+
+    .execution-state h3 {
+      font-family: var(--display);
+      font-size: 28px;
+      text-transform: uppercase;
+      line-height: 1;
+      letter-spacing: -.025em;
+      margin: 8px 0 28px;
+    }
+
+    .execution-line {
+      display: grid;
+      grid-template-columns: 46px 1fr auto;
+      min-height: 44px;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      gap: 12px;
+      font-size: 10px;
+    }
+
+    .execution-line:last-child { border-bottom: 0; }
+    .execution-line .state-paid { color: var(--acid); }
+    .execution-line .state-suspended { color: var(--hold); }
+    .execution-line .state-released { color: var(--release); }
+
+    .accounted {
+      margin-top: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 20px;
+      border-top: 1px solid var(--paper);
+      padding-top: 12px;
+    }
+
+    .accounted strong {
+      font-family: var(--display);
+      font-size: 46px;
+      line-height: 1;
+      letter-spacing: -.04em;
+    }
+
+    .accounted span {
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 9px;
+      letter-spacing: .12em;
+    }
+
+    .ledger {
+      border-top: 1px solid var(--line-strong);
+    }
+
+    .ledger-row {
+      display: grid;
+      grid-template-columns: 110px minmax(140px, .7fr) minmax(0, 1.4fr) 100px;
+      min-height: 72px;
+      align-items: center;
+      gap: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .ledger-kind {
+      font-family: var(--display);
+      font-size: 22px;
+      text-transform: uppercase;
+      letter-spacing: -.02em;
+    }
+
+    .ledger-hash {
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 10px;
+    }
+
+    .verified {
+      justify-self: end;
+      color: var(--acid);
+      font-size: 9px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .archive-cta {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 30px;
+      align-items: center;
+      padding: 38px 0 0;
+    }
+
+    .archive-cta p {
+      color: var(--muted);
+      max-width: 680px;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+    }
+
+    .archive-link {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 12px 28px;
-      background: var(--accent);
-      color: #fff;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid var(--paper);
       text-decoration: none;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      transition: background 0.15s ease;
+      text-transform: uppercase;
+      font-size: 9px;
+      letter-spacing: .12em;
+      transition: background 120ms ease, color 120ms ease;
     }
 
-    .history-link:hover { background: var(--accent-light); }
-
-    .history-note {
-      margin-top: 20px;
-      font-size: 11px;
-      color: var(--text-dim);
+    .archive-link:hover,
+    .archive-link:focus-visible {
+      background: var(--paper);
+      color: var(--void);
+      outline: none;
     }
 
-    /* ── Address display ──────────────────────────────────────────── */
-    .addr {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--text-muted);
+    .telemetry {
+      min-height: 58px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      align-items: center;
+      gap: 16px;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 8px;
     }
 
-    .addr-short {
-      display: inline;
+    .telemetry strong {
+      color: var(--muted);
+      font-weight: 500;
     }
 
-    /* ── Responsive ───────────────────────────────────────────────── */
-    @media (max-width: 600px) {
-      .stat-grid { grid-template-columns: 1fr 1fr; }
-      .stat-value { font-size: 16px; }
-      .holder-table th:nth-child(3),
-      .holder-table td:nth-child(3) { display: none; }
-      .mode-btn { padding: 8px 14px; font-size: 11px; }
+    .telemetry .health { color: var(--acid); }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
     }
 
-    @media (max-width: 400px) {
-      .stat-grid { grid-template-columns: 1fr; }
+    @media (max-width: 980px) {
+      .shell { width: min(100% - 32px, 1480px); }
+      .masthead { grid-template-columns: 1fr 1fr; }
+      .nav { display: none; }
+      .hero-top { grid-template-columns: 1fr; gap: 26px; }
+      .hero-copy { max-width: 620px; }
+      .section-head { grid-template-columns: 80px 1fr; }
+      .section-deck { grid-column: 2; }
+      .system-grid { grid-template-columns: 1fr; }
+      .readout { border-right: 0; border-bottom: 1px solid var(--line-strong); padding-right: 0; }
+      .policy-roster { padding-left: 0; }
+      .execution-grid { grid-template-columns: 1fr; }
+      .execution-state:first-child,
+      .execution-state:last-child { padding: 28px 0; }
+      .execution-arrow { min-height: 68px; border: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); transform: rotate(90deg); }
+      .ledger-row { grid-template-columns: 80px 1fr 92px; }
+      .ledger-hash { grid-column: 2 / 4; padding-bottom: 14px; }
+      .hero-meta { grid-template-columns: 1fr 1fr; }
+      .meta-cell { min-height: 58px; border-bottom: 1px solid var(--line); }
+      .meta-cell:nth-child(2) { border-right: 0; }
+    }
+
+    @media (max-width: 680px) {
+      :root { --gate: 58%; }
+      .shell { width: min(100% - 22px, 1480px); }
+      .masthead { min-height: 66px; }
+      .wordmark { font-size: 20px; }
+      .live-lockup span:last-child { display: none; }
+      .hero { min-height: auto; padding-top: 34px; }
+      .hero-title { font-size: clamp(54px, 18vw, 94px); }
+      .chamber { min-height: 430px; }
+      .chamber-head,
+      .chamber-foot { grid-template-columns: 1fr; padding: 10px 0; gap: 8px; }
+      .phase-readout { text-align: left; }
+      .allocation-row { grid-template-columns: 54px minmax(0, 1fr) 86px; }
+      .holder-id { gap: 6px; }
+      .holder-id span { display: none; }
+      .track { margin: 0 10px; }
+      .allocation-state { min-width: 72px; font-size: 8px; }
+      .chamber-summary { align-items: center; }
+      .summary-copy { display: none; }
+      .chamber-actions { flex-wrap: wrap; }
+      .action { flex: 1 1 auto; }
+      .hero-meta { grid-template-columns: 1fr; }
+      .meta-cell,
+      .meta-cell:not(:first-child) { padding: 9px 0; border-right: 0; }
+      .section { padding: 72px 0; }
+      .section-head { grid-template-columns: 1fr; margin-bottom: 36px; }
+      .section-deck { grid-column: auto; }
+      .readout-row { grid-template-columns: 110px 1fr; }
+      .ledger-row { grid-template-columns: 62px 1fr 76px; gap: 12px; }
+      .ledger-kind { font-size: 18px; }
+      .archive-cta { grid-template-columns: 1fr; }
+      .telemetry { grid-template-columns: 1fr 1fr; padding: 18px 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
     }
   </style>
 </head>
 <body>
-<div class="app">
+  <div class="shell">
+    <header class="masthead">
+      <a class="wordmark" href="#live" aria-label="Suspense home">
+        <span>SUSPEN</span><span class="wordmark-gate" aria-hidden="true"></span><span>SE</span>
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#live">01 Live</a>
+        <a href="#execution">02 Execution</a>
+        <a href="#evidence">03 Evidence</a>
+      </nav>
+      <div class="live-lockup"><span class="live-dot" aria-hidden="true"></span><span id="mast-live">Live / Monad 10143</span></div>
+    </header>
 
-  <!-- Header -->
-  <header class="header">
-    <div class="header-brand">
-      <div class="brand-mark">⬡</div>
-      <div>
-        <div class="brand-name">Suspense CVA</div>
-        <div class="brand-sub">Evidence Reconstruction Demo</div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Mode toggle -->
-  <div class="mode-bar" role="tablist" aria-label="Demo mode">
-    <button class="mode-btn active" id="btn-live" role="tab" aria-selected="true" onclick="setMode('live')">
-      Live Testnet
-    </button>
-    <button class="mode-btn" id="btn-history" role="tab" aria-selected="false" onclick="setMode('history')">
-      Evidence History
-    </button>
-  </div>
-
-  <!-- LIVE TESTNET VIEW -->
-  <div id="view-live">
-
-    <div class="reality-banner live">
-      <div class="banner-dot pulse"></div>
-      LIVE POLICY CHECK — ON-CHAIN canTransfer() · Monad Testnet · Chain 10143
-    </div>
-
-    <div class="controls">
-      <button class="btn primary" id="refresh-btn" onclick="refresh()">↻ Refresh</button>
-      <span class="refresh-time" id="refresh-time"></span>
-    </div>
-
-    <!-- Chain status -->
-    <div class="card" id="card-status">
-      <div class="card-title">Vault Status</div>
-      <div id="status-content"><div class="state-msg loading">Loading live chain state…</div></div>
-    </div>
-
-    <!-- Eligibility -->
-    <div class="card" id="card-eligibility">
-      <div class="card-title">Eligibility — Fresh Cleanverse Policy Check</div>
-      <div id="eligibility-content"><div class="state-msg loading">Querying on-chain policy…</div></div>
-    </div>
-
-    <!-- Source note -->
-    <div style="font-size: 11px; color: var(--text-dim); text-align: center; margin-top: 8px;">
-      Eligibility = on-chain IATokenPolicy.canTransfer() via eth_call · Not a Cleanverse REST API call · No client secrets
-    </div>
-
-  </div>
-
-  <!-- EVIDENCE HISTORY VIEW -->
-  <div id="view-history" style="display:none;">
-
-    <div class="reality-banner historical">
-      <div class="banner-dot"></div>
-      HISTORICAL EVIDENCE · Canonical Gate E→F reconstruction · No live RPC
-    </div>
-
-    <div class="card">
-      <div class="history-panel">
-        <h2>Evidence Reconstruction Mode</h2>
-        <p>
-          The canonical 9-step Evidence Reconstruction demo walks through the
-          complete Suspense lifecycle using hardcoded Gate E→F on-chain receipts.
-          All data is historical evidence — no live RPC calls, no testnet connection required.
-        </p>
-        <a class="history-link" href="/demo/" target="_blank" rel="noopener">
-          Open Evidence Reconstruction →
-        </a>
-        <div class="history-note">
-          Opens in a new tab · Canonical demo (commit d03bb118) · Historical Evidence class
+    <main>
+      <section class="hero" id="live" aria-labelledby="hero-title">
+        <div class="hero-top">
+          <div>
+            <div class="eyebrow">01 / Settlement infrastructure</div>
+            <h1 class="hero-title" id="hero-title">Pay what clears.<span class="line-2">Hold what doesn’t.</span></h1>
+          </div>
+          <p class="hero-copy">
+            Suspense makes compliance visible. <strong>Eligible allocations move.</strong> Ineligible allocations remain accounted for until a fresh policy check clears the same allocation for release.
+          </p>
         </div>
-      </div>
-    </div>
 
+        <div></div>
+
+        <div class="chamber" aria-live="polite">
+          <div class="chamber-head">
+            <div class="chamber-mode"><span class="micro-label">Settlement chamber</span><strong id="chamber-mode">Live policy state</strong></div>
+            <div class="phase-readout" id="phase-readout">Waiting for live policy check</div>
+          </div>
+
+          <div class="allocation-list" id="allocation-list">
+            <div class="allocation-row" data-holder="1" data-country="CA" data-state="queued">
+              <div class="holder-id"><strong>01</strong><span>CA</span></div>
+              <div class="track"><span class="runner" aria-hidden="true"></span></div>
+              <div class="allocation-state">Queued</div>
+            </div>
+            <div class="allocation-row" data-holder="2" data-country="CA" data-state="queued">
+              <div class="holder-id"><strong>02</strong><span>CA</span></div>
+              <div class="track"><span class="runner" aria-hidden="true"></span></div>
+              <div class="allocation-state">Queued</div>
+            </div>
+            <div class="allocation-row" data-holder="3" data-country="CA" data-state="queued">
+              <div class="holder-id"><strong>03</strong><span>CA</span></div>
+              <div class="track"><span class="runner" aria-hidden="true"></span></div>
+              <div class="allocation-state">Queued</div>
+            </div>
+            <div class="allocation-row" data-holder="4" data-country="CA" data-state="queued">
+              <div class="holder-id"><strong>04</strong><span>CA</span></div>
+              <div class="track"><span class="runner" aria-hidden="true"></span></div>
+              <div class="allocation-state">Queued</div>
+            </div>
+            <div class="allocation-row" data-holder="5" data-country="US" data-state="queued">
+              <div class="holder-id"><strong>05</strong><span>US</span></div>
+              <div class="track"><span class="runner" aria-hidden="true"></span></div>
+              <div class="allocation-state">Queued</div>
+            </div>
+          </div>
+
+          <div class="chamber-foot">
+            <div class="chamber-summary">
+              <strong class="summary-number" id="summary-number">— / 5</strong>
+              <span class="summary-copy" id="summary-copy">Current eligibility is live. Settlement lifecycle is shown only in verified replay.</span>
+            </div>
+            <div class="chamber-actions">
+              <button class="action" id="replay-btn" type="button">Replay verified execution →</button>
+              <button class="action secondary" id="live-btn" type="button">Refresh live</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-meta" aria-label="Runtime metadata">
+          <div class="meta-cell"><div class="micro-label">Asset</div><div class="meta-value" id="meta-asset">SPNS03</div></div>
+          <div class="meta-cell"><div class="micro-label">Vault</div><div class="meta-value" id="meta-vault">0x8a6E…F7C4</div></div>
+          <div class="meta-cell"><div class="micro-label">Policy</div><div class="meta-value" id="meta-policy">0x3648…12Dd</div></div>
+          <div class="meta-cell"><div class="micro-label">Reality class</div><div class="meta-value" id="meta-reality">LIVE_POLICY_CHECK</div></div>
+        </div>
+      </section>
+
+      <section class="section" id="system" aria-labelledby="system-title">
+        <div class="section-head">
+          <div class="section-index">01.1</div>
+          <h2 class="section-title" id="system-title">Live system readout</h2>
+          <p class="section-deck">A current-state view only. The values below are refreshed from the production read endpoints. “Allowed” means the policy currently permits transfer; it does not rewrite historical settlement states.</p>
+        </div>
+
+        <div class="system-grid">
+          <div class="readout" id="readout">
+            <div class="readout-row"><span class="readout-key">Network</span><span class="readout-value" id="r-network">Monad Testnet</span></div>
+            <div class="readout-row"><span class="readout-key">Chain</span><span class="readout-value" id="r-chain">10143</span></div>
+            <div class="readout-row"><span class="readout-key">Asset</span><span class="readout-value" id="r-asset">SPNS03</span></div>
+            <div class="readout-row"><span class="readout-key">Vault balance</span><span class="readout-value" id="r-balance">—</span></div>
+            <div class="readout-row"><span class="readout-key">Vault</span><span class="readout-value" id="r-vault">—</span></div>
+            <div class="readout-row"><span class="readout-key">Policy</span><span class="readout-value" id="r-policy">—</span></div>
+            <div class="readout-row"><span class="readout-key">Block</span><span class="readout-value" id="r-block">—</span></div>
+            <div class="readout-row"><span class="readout-key">Write gate</span><span class="readout-value warn">Closed</span></div>
+          </div>
+
+          <div class="policy-roster" id="policy-roster">
+            <div class="roster-row"><span>01</span><span class="roster-wallet">0x7Af3…5dCf / CA</span><span class="roster-state unknown" data-roster="1">Checking</span></div>
+            <div class="roster-row"><span>02</span><span class="roster-wallet">0x067d…B85E / CA</span><span class="roster-state unknown" data-roster="2">Checking</span></div>
+            <div class="roster-row"><span>03</span><span class="roster-wallet">0xC222…2752 / CA</span><span class="roster-state unknown" data-roster="3">Checking</span></div>
+            <div class="roster-row"><span>04</span><span class="roster-wallet">0xc06F…69EC / CA</span><span class="roster-state unknown" data-roster="4">Checking</span></div>
+            <div class="roster-row"><span>05</span><span class="roster-wallet">0x4065…513f / US</span><span class="roster-state unknown" data-roster="5">Checking</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="execution" aria-labelledby="execution-title">
+        <div class="section-head">
+          <div class="section-index">02</div>
+          <h2 class="section-title" id="execution-title">Verified execution</h2>
+          <p class="section-deck">This is a replay of the fresh Level-3 execution already verified on Monad Testnet. It is presentation-only: the replay button submits no blockchain transaction and makes no Cleanverse mutation.</p>
+        </div>
+
+        <div class="execution-grid">
+          <article class="execution-state">
+            <div class="micro-label">T0 / After distribute</div>
+            <h3>One allocation held</h3>
+            <div class="execution-line"><span>01</span><span>Holder 1</span><span class="state-paid">PAID</span></div>
+            <div class="execution-line"><span>02</span><span>Holder 2</span><span class="state-paid">PAID</span></div>
+            <div class="execution-line"><span>03</span><span>Holder 3</span><span class="state-paid">PAID</span></div>
+            <div class="execution-line"><span>04</span><span>Holder 4</span><span class="state-paid">PAID</span></div>
+            <div class="execution-line"><span>05</span><span>Holder 5</span><span class="state-suspended">SUSPENDED</span></div>
+            <div class="accounted"><strong>5 / 5</strong><span>Accounted</span></div>
+          </article>
+
+          <div class="execution-arrow" aria-hidden="true">→</div>
+
+          <article class="execution-state">
+            <div class="micro-label">T1 / After fresh recheck</div>
+            <h3>The same allocation released</h3>
+            <div class="execution-line"><span>01</span><span>Holder 1</span><span class="state-paid">PAID</span></div>
+            <div class="execution-line"><span>02</span><span>Holder 2</span><span class="state-paid">PAID</span></div>
+            <div class="execution-line"><span>03</span><span>Holder 3</span><span class="state-paid">PAID</span></div>
+            <div class="execution-line"><span>04</span><span>Holder 4</span><span class="state-paid">PAID</span></div>
+            <div class="execution-line"><span>05</span><span>Holder 5</span><span class="state-released">RELEASED</span></div>
+            <div class="accounted"><strong>5 / 5</strong><span>Accounted</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="evidence" aria-labelledby="evidence-title">
+        <div class="section-head">
+          <div class="section-index">03</div>
+          <h2 class="section-title" id="evidence-title">Execution ledger</h2>
+          <p class="section-deck">The product story resolves to verifiable execution evidence. Historical SPNS01 material remains archived separately; the rows below are the fresh SPNS03 Level-3 lifecycle.</p>
+        </div>
+
+        <div class="ledger">
+          <div class="ledger-row"><span class="micro-label">52324194</span><strong class="ledger-kind">Mint</strong><span class="ledger-hash">0xfa522a34a7351976ffe1318b00b06451f9eceaa70a791a32647a2bbba8173314</span><span class="verified">✓ Verified</span></div>
+          <div class="ledger-row"><span class="micro-label">52324424</span><strong class="ledger-kind">Distribute</strong><span class="ledger-hash">0x1fbd3fb0cef2607ac8d4d4a7daffb82b2a8ef3d127a294ef25d643a1182f06d2</span><span class="verified">✓ Verified</span></div>
+          <div class="ledger-row"><span class="micro-label">52324821</span><strong class="ledger-kind">Release</strong><span class="ledger-hash">0x21ab0250fd0076a5036e3035f37b344acba0c91ef5234bfb51c77d40c7973f61</span><span class="verified">✓ Verified</span></div>
+        </div>
+
+        <div class="archive-cta">
+          <p>The original evidence reconstruction is preserved as an archive. It is intentionally distinct from this live SPNS03 surface and remains useful for the complete historical proof trail.</p>
+          <a class="archive-link" href="/demo/" target="_blank" rel="noopener">Open evidence archive ↗</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="telemetry" aria-label="System telemetry">
+      <span>Asset <strong id="t-asset">SPNS03</strong></span>
+      <span>Vault <strong id="t-vault">0x8a6E…F7C4</strong></span>
+      <span>Block <strong id="t-block">—</strong></span>
+      <span>Policy check <strong id="t-check">—</strong></span>
+      <span class="health">● Read-only runtime</span>
+    </footer>
   </div>
 
-</div>
+  <script>
+    const rows = [...document.querySelectorAll('.allocation-row')];
+    const replayBtn = document.getElementById('replay-btn');
+    const liveBtn = document.getElementById('live-btn');
+    let liveEligibility = null;
+    let liveStatus = null;
+    let replaying = false;
 
-<script>
-// ── Mode toggle ──────────────────────────────────────────────────────────────
-function setMode(mode) {
-  const isLive = mode === 'live';
-  document.getElementById('view-live').style.display    = isLive ? '' : 'none';
-  document.getElementById('view-history').style.display = isLive ? 'none' : '';
-  document.getElementById('btn-live').classList.toggle('active', isLive);
-  document.getElementById('btn-history').classList.toggle('active', !isLive);
-  document.getElementById('btn-live').setAttribute('aria-selected', String(isLive));
-  document.getElementById('btn-history').setAttribute('aria-selected', String(!isLive));
-  if (isLive && !_loaded) refresh();
-}
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const shortAddr = (value) => value ? `${value.slice(0, 6)}…${value.slice(-4)}` : '—';
 
-// ── Data fetching ────────────────────────────────────────────────────────────
-let _loaded = false;
+    function setRow(holder, state, label) {
+      const row = rows.find(item => Number(item.dataset.holder) === Number(holder));
+      if (!row) return;
+      row.dataset.state = state;
+      row.querySelector('.allocation-state').textContent = label;
+    }
 
-async function refresh() {
-  const btn = document.getElementById('refresh-btn');
-  btn.disabled = true;
-  btn.textContent = '↻ Refreshing…';
+    function setSummary(number, copy) {
+      document.getElementById('summary-number').textContent = number;
+      document.getElementById('summary-copy').textContent = copy;
+    }
 
-  try {
-    const [statusRes, eligRes] = await Promise.all([
-      fetch('/api/status'),
-      fetch('/api/eligibility'),
-    ]);
+    function setMode(mode, phase) {
+      document.getElementById('chamber-mode').textContent = mode;
+      document.getElementById('phase-readout').textContent = phase;
+    }
 
-    const status = await statusRes.json();
-    const elig   = await eligRes.json();
+    function classifyLive(holder) {
+      if (holder.decision === 'ALLOWED' || holder.eligible === true) return ['allowed', 'ALLOWED'];
+      if (holder.decision === 'BLOCKED' || holder.eligible === false) return ['blocked', 'BLOCKED'];
+      return ['unknown', 'UNKNOWN'];
+    }
 
-    renderStatus(status, statusRes.ok);
-    renderEligibility(elig, eligRes.ok);
+    function renderLivePolicy() {
+      if (!liveEligibility?.holders) return;
 
-    document.getElementById('refresh-time').textContent =
-      'Refreshed ' + new Date().toLocaleTimeString();
-    _loaded = true;
-  } catch (err) {
-    renderError('status-content', 'Network error: ' + err.message);
-    renderError('eligibility-content', 'Network error: ' + err.message);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '↻ Refresh';
-  }
-}
+      let allowed = 0;
+      let unknown = 0;
 
-// ── Render: vault status ─────────────────────────────────────────────────────
-function renderStatus(data, ok) {
-  const el = document.getElementById('status-content');
-  if (!ok || data.error) {
-    el.innerHTML = `<div class="state-msg error">
-      RPC error — Monad Testnet may be unreachable.<br>
-      <span style="font-size:11px;opacity:0.7;">${escHtml(data.error || 'Unknown error')}</span>
-    </div>`;
-    return;
-  }
+      for (const holder of liveEligibility.holders) {
+        const [state, label] = classifyLive(holder);
+        setRow(holder.holder, state, label);
+        if (state === 'allowed') allowed++;
+        if (state === 'unknown') unknown++;
 
-  const balance = data.vaultBalance ?? '—';
-  const block   = data.blockNumber  != null ? data.blockNumber.toLocaleString() : '—';
-  const chain   = data.chainId      ?? '—';
-  const ts      = data.timestamp ? new Date(data.timestamp * 1000).toLocaleString() : '—';
+        const roster = document.querySelector(`[data-roster="${holder.holder}"]`);
+        if (roster) {
+          roster.textContent = label;
+          roster.className = `roster-state ${state}`;
+        }
+      }
 
-  el.innerHTML = `
-    <div class="stat-grid">
-      <div class="stat">
-        <div class="stat-label">Vault Balance</div>
-        <div class="stat-value highlight">${escHtml(balance)}</div>
-        <div class="stat-sub">${escHtml(data.tokenSymbol ?? 'SPNS03')}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Chain ID</div>
-        <div class="stat-value green">${escHtml(String(chain))}</div>
-        <div class="stat-sub">Monad Testnet</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Block</div>
-        <div class="stat-value">${escHtml(String(block))}</div>
-        <div class="stat-sub">${escHtml(ts)}</div>
-      </div>
-      <div class="stat">
-        <div class="stat-label">Vault</div>
-        <div class="stat-value" style="font-size:11px;font-family:var(--mono);">${shortAddr(data.vault)}</div>
-        <div class="stat-sub">SuspenseVault</div>
-      </div>
-    </div>`;
-}
+      setMode('Live policy state', `Fresh canTransfer() / ${liveEligibility.isoTime ? new Date(liveEligibility.isoTime).toLocaleTimeString() : 'now'}`);
+      setSummary(`${allowed} / 5`, unknown ? `${unknown} policy result${unknown === 1 ? '' : 's'} unknown. UNKNOWN is not BLOCKED.` : 'Currently eligible. This is current policy state, not historical settlement state.');
+      document.getElementById('meta-reality').textContent = liveEligibility.realityClass || 'LIVE_POLICY_CHECK';
+      replayBtn.disabled = false;
+      replayBtn.textContent = 'Replay verified execution →';
+    }
 
-// ── Render: eligibility ──────────────────────────────────────────────────────
-function renderEligibility(data, ok) {
-  const el = document.getElementById('eligibility-content');
-  if (!ok || data.error) {
-    el.innerHTML = `<div class="state-msg error">
-      Policy query failed.<br>
-      <span style="font-size:11px;opacity:0.7;">${escHtml(data.error || 'Unknown error')}</span>
-    </div>`;
-    return;
-  }
+    function renderSystem() {
+      if (liveStatus) {
+        document.getElementById('r-chain').textContent = liveStatus.chainId ?? '—';
+        document.getElementById('r-asset').textContent = liveStatus.tokenSymbol ?? 'SPNS03';
+        document.getElementById('r-balance').textContent = `${liveStatus.vaultBalance ?? '—'} ${liveStatus.tokenSymbol ?? 'SPNS03'}`;
+        document.getElementById('r-vault').textContent = liveStatus.vault ?? '—';
+        document.getElementById('r-block').textContent = liveStatus.blockNumber ?? '—';
+        document.getElementById('meta-asset').textContent = liveStatus.tokenSymbol ?? 'SPNS03';
+        document.getElementById('meta-vault').textContent = shortAddr(liveStatus.vault);
+        document.getElementById('t-asset').textContent = liveStatus.tokenSymbol ?? 'SPNS03';
+        document.getElementById('t-vault').textContent = shortAddr(liveStatus.vault);
+        document.getElementById('t-block').textContent = liveStatus.blockNumber ?? '—';
+      }
 
-  const holders = data.holders ?? [];
-  const rows = holders.map(h => {
-    const cls  = h.error ? 'unknown' : (h.eligible ? 'eligible' : 'ineligible');
-    const dot  = h.eligible ? '✓' : '✗';
-    const lbl  = h.error ? 'Error' : (h.eligible ? 'Eligible' : 'Ineligible');
-    return `<tr>
-      <td><strong>${escHtml(String(h.holder))}</strong></td>
-      <td class="mono">${shortAddr(h.address)}</td>
-      <td>${escHtml(h.country)}</td>
-      <td><span class="badge ${cls}">${dot} ${lbl}</span></td>
-    </tr>`;
-  }).join('');
+      if (liveEligibility) {
+        document.getElementById('r-policy').textContent = liveEligibility.policy ?? '—';
+        document.getElementById('meta-policy').textContent = shortAddr(liveEligibility.policy);
+        document.getElementById('t-check').textContent = liveEligibility.isoTime ? new Date(liveEligibility.isoTime).toLocaleTimeString() : '—';
+      }
+    }
 
-  const eligCount = holders.filter(h => h.eligible).length;
-  const total     = holders.length;
+    async function refreshLive() {
+      if (replaying) return;
+      liveBtn.disabled = true;
+      liveBtn.textContent = 'Checking…';
+      setMode('Live policy state', 'Querying production read endpoints');
+      setSummary('— / 5', 'Refreshing current chain and policy state.');
+      rows.forEach((row, i) => setRow(i + 1, 'queued', 'Checking'));
 
-  el.innerHTML = `
-    <div style="margin-bottom:14px; font-size:12px; color:var(--text-muted);">
-      Policy: <span class="addr">${shortAddr(data.policy)}</span> ·
-      Checked at: ${escHtml(data.isoTime ?? '—')} ·
-      <strong style="color:var(--green)">${eligCount}/${total} eligible</strong>
-    </div>
-    <table class="holder-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Wallet</th>
-          <th>Country</th>
-          <th>canTransfer()</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>`;
-}
+      try {
+        const [statusRes, eligibilityRes] = await Promise.all([
+          fetch('/api/status', { cache: 'no-store' }),
+          fetch('/api/eligibility', { cache: 'no-store' })
+        ]);
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function renderError(id, msg) {
-  document.getElementById(id).innerHTML =
-    `<div class="state-msg error">${escHtml(msg)}</div>`;
-}
+        const statusBody = await statusRes.json();
+        const eligibilityBody = await eligibilityRes.json();
 
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+        if (!statusRes.ok) throw new Error(statusBody.error || 'Live chain state unavailable');
+        if (!eligibilityRes.ok) throw new Error(eligibilityBody.error || 'Live policy state unavailable');
 
-function shortAddr(addr) {
-  if (!addr) return '—';
-  return `<span class="addr-short" title="${escHtml(addr)}">${escHtml(addr.slice(0,6))}…${escHtml(addr.slice(-4))}</span>`;
-}
+        liveStatus = statusBody;
+        liveEligibility = eligibilityBody;
+        renderSystem();
+        renderLivePolicy();
+      } catch (error) {
+        rows.forEach((row, i) => setRow(i + 1, 'unknown', 'UNKNOWN'));
+        setMode('Live policy state', 'Read unavailable');
+        setSummary('0 / 5', 'Live read failed. UNKNOWN is not equivalent to BLOCKED.');
+        document.getElementById('meta-reality').textContent = 'LIVE_READ_UNAVAILABLE';
+      } finally {
+        liveBtn.disabled = false;
+        liveBtn.textContent = 'Refresh live';
+      }
+    }
 
-// ── Init ─────────────────────────────────────────────────────────────────────
-refresh();
-</script>
+    async function replaySettlement() {
+      if (replaying) return;
+      replaying = true;
+      replayBtn.disabled = true;
+      liveBtn.disabled = true;
+      document.getElementById('meta-reality').textContent = 'VERIFIED_EXECUTION_REPLAY';
+      setMode('Verified execution', 'T0 / Initializing five allocations');
+      setSummary('0 / 5', 'Presentation replay only. No transaction is being submitted.');
+      rows.forEach((row, i) => setRow(i + 1, 'queued', 'QUEUED'));
+      await sleep(550);
+
+      for (let holder = 1; holder <= 5; holder++) {
+        setMode('Verified execution', `Policy scan / allocation 0${holder}`);
+        setRow(holder, 'recheck', 'SCANNING');
+        await sleep(380);
+        if (holder < 5) {
+          setRow(holder, 'paid', 'PAID');
+        } else {
+          setRow(holder, 'suspended', 'SUSPENDED');
+        }
+        await sleep(180);
+      }
+
+      setMode('Verified execution', 'T0 / Distribution settled with one hold');
+      setSummary('5 / 5', '4 PAID + 1 SUSPENDED. Every allocation remains accounted for.');
+      await sleep(1500);
+
+      setMode('Verified execution', 'Fresh eligibility / allocation 05');
+      setRow(5, 'recheck', 'RECHECK');
+      await sleep(1000);
+
+      setMode('Verified execution', 'T1 / Same allocation released');
+      setRow(5, 'released', 'RELEASED');
+      setSummary('5 / 5', '4 PAID + 1 RELEASED. Same allocation, newly eligible, still accounted for.');
+      await sleep(500);
+
+      replayBtn.disabled = false;
+      replayBtn.textContent = 'Replay again →';
+      liveBtn.disabled = false;
+      liveBtn.textContent = 'Return to live';
+      replaying = false;
+    }
+
+    replayBtn.addEventListener('click', replaySettlement);
+    liveBtn.addEventListener('click', refreshLive);
+    refreshLive();
+  </script>
 </body>
 </html>
