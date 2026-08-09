@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suspense Protocol — Bond Coupon Distribution Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ===== DESIGN TOKENS ===== */
+    :root {
+      --bg:              #0A0F1E;
+      --surface:         #111827;
+      --surface-raised:  #1C2435;
+      --border:          #1E2D45;
+
+      --state-ready:     #6B7280;
+      --state-paid:      #10B981;
+      --state-suspended: #F59E0B;
+      --state-released:  #22C55E;
+
+      --text-primary:    #F9FAFB;
+      --text-secondary:  #9CA3AF;
+      --text-mono:       #94A3B8;
+      --accent:          #F59E0B;
+
+      --font-ui:   'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+      --sp1: 8px;
+      --sp2: 16px;
+      --sp3: 24px;
+      --sp4: 32px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ===== LAYOUT ===== */
+    .app {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px var(--sp3);
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: var(--sp2) var(--sp3);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: var(--sp2);
+    }
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .header-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+    }
+    .header-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      align-items: flex-end;
+    }
+    .chain-badge {
+      display: inline-block;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.28);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 4px;
+    }
+    .addr-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-mono);
+    }
+
+    /* ===== TRUTH BANNER ===== */
+    .truth-banner {
+      display: flex;
+      gap: var(--sp2);
+      align-items: flex-start;
+      background: rgba(245,158,11,0.07);
+      border: 1px solid rgba(245,158,11,0.22);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 12px var(--sp2);
+      margin-bottom: var(--sp2);
+    }
+    .truth-icon {
+      font-size: 15px;
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 1px;
+      line-height: 1;
+    }
+    .truth-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .truth-step-line {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      transition: color 300ms ease;
+    }
+    .truth-static-line {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ===== STEP NAVIGATOR ===== */
+    .step-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px var(--sp2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: var(--sp2);
+    }
+    .step-indicator {
+      flex: 1;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .step-indicator .step-n { color: var(--text-primary); font-weight: 700; }
+    .step-indicator .step-label { color: var(--text-secondary); font-size: 12px; }
+
+    .btn {
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 180ms, border-color 180ms, opacity 180ms;
+      white-space: nowrap;
+    }
+    .btn:hover:not(:disabled) { background: #243042; border-color: #344762; }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-ghost {
+      background: transparent;
+      border-color: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+    .btn-ghost:hover:not(:disabled) {
+      background: transparent;
+      border-color: transparent;
+      color: var(--text-primary);
+    }
+
+    /* ===== STEP META BAR ===== */
+    .step-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--sp2);
+      min-height: 32px;
+    }
+    .step-badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .action-chip {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-mono);
+    }
+    .action-chip:empty { display: none; }
+
+    /* ===== CLEANVERSE PANEL ===== */
+    .cv-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: var(--sp2);
+      overflow: hidden;
+    }
+    .cv-panel summary {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px var(--sp2);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-secondary);
+      list-style: none;
+      user-select: none;
+    }
+    .cv-panel summary::-webkit-details-marker { display: none; }
+    .cv-toggle {
+      font-size: 9px;
+      transition: transform 200ms;
+      display: inline-block;
+    }
+    .cv-panel[open] .cv-toggle { transform: rotate(90deg); }
+    .cv-panel-tag {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+    .cv-body {
+      padding: var(--sp2);
+      border-top: 1px solid var(--border);
+    }
+    .cv-policy {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-mono);
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+    .cv-results { display: flex; flex-direction: column; gap: 5px; }
+    .cv-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 12px;
+      gap: 12px;
+    }
+    .cv-holder { color: var(--text-secondary); flex-shrink: 0; }
+    .cv-result { font-size: 11px; font-weight: 600; text-align: right; }
+    .cv-result.allowed { color: var(--state-paid); }
+    .cv-result.blocked { color: var(--state-suspended); }
+    .cv-result.pending { color: var(--text-secondary); font-style: italic; font-weight: 400; }
+    .cv-result.recheck { color: var(--state-released); }
+    .cv-row.row-suspended { background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.18); }
+    .cv-row.row-released  { background: rgba(34,197,94,0.06);  border-color: rgba(34,197,94,0.18); }
+    .cv-row.row-scanning  { animation: cvScan 1.2s ease-in-out infinite; }
+    @keyframes cvScan {
+      0%,100% { opacity: 0.55; }
+      50%      { opacity: 1; }
+    }
+
+    /* ===== TIMELINE SEPARATOR ===== */
+    .timeline-sep {
+      display: flex;
+      align-items: center;
+      gap: var(--sp2);
+      margin: var(--sp2) 0;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      opacity: 0;
+      transition: opacity 400ms ease;
+    }
+    .timeline-sep.visible { opacity: 1; }
+    .timeline-sep::before,
+    .timeline-sep::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ===== ALLOCATION TABLE ===== */
+    .alloc-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: var(--sp2);
+    }
+    .alloc-thead {
+      display: grid;
+      grid-template-columns: 36px 90px 1fr 110px 120px;
+      padding: 9px var(--sp2);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-secondary);
+      background: var(--surface-raised);
+      border-bottom: 1px solid var(--border);
+    }
+    .col-amount { text-align: right; }
+    .col-status { text-align: right; }
+
+    .alloc-row {
+      display: grid;
+      grid-template-columns: 36px 90px 1fr 110px 120px;
+      padding: 0 var(--sp2);
+      height: 52px;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      transition: background 300ms ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .alloc-row:last-of-type { border-bottom: none; }
+
+    /* Row state backgrounds */
+    .alloc-row.s-ready     { background: transparent; }
+    .alloc-row.s-paid      { background: rgba(16,185,129,0.04); }
+    .alloc-row.s-suspended { background: rgba(245,158,11,0.07); }
+    .alloc-row.s-released  { background: rgba(34,197,94,0.07); }
+
+    /* Scan flash animation (step 2) */
+    .alloc-row.scanning {
+      animation: rowScanFlash 0.6s ease forwards;
+    }
+    @keyframes rowScanFlash {
+      0%   { background: transparent; }
+      40%  { background: rgba(148,163,184,0.07); }
+      100% { background: transparent; }
+    }
+
+    /* Release flash animation (step 8) */
+    .alloc-row.flash-release {
+      animation: flashRelease 650ms ease forwards !important;
+    }
+    @keyframes flashRelease {
+      0%   { background: rgba(245,158,11,0.07); }
+      16%  { background: rgba(255,255,255,0.18); }
+      32%  { background: rgba(34,197,94,0.25); }
+      100% { background: rgba(34,197,94,0.07); }
+    }
+
+    .row-num {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .row-holder {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-mono);
+    }
+    .row-alloc-id {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .alloc-id-empty { opacity: 0.4; }
+    .alloc-id-pill {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 500;
+      transition: background 300ms, border-color 300ms, color 300ms;
+    }
+    .alloc-id-pill.suspended-pill {
+      background: rgba(245,158,11,0.14);
+      border: 1px solid rgba(245,158,11,0.28);
+      color: var(--state-suspended);
+    }
+    .alloc-id-pill.released-pill {
+      background: rgba(34,197,94,0.14);
+      border: 1px solid rgba(34,197,94,0.28);
+      color: var(--state-released);
+    }
+    .alloc-id-pill.releasing-pill {
+      background: rgba(245,158,11,0.14);
+      border: 1px solid rgba(245,158,11,0.28);
+      color: var(--state-suspended);
+      animation: releasingPill 0.5s ease-in-out infinite alternate;
+    }
+    @keyframes releasingPill {
+      from { opacity: 0.6; }
+      to   { opacity: 1.0; }
+    }
+
+    .row-amount {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+      text-align: right;
+      color: var(--text-primary);
+    }
+    .row-status-cell {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 7px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background-color 300ms ease;
+    }
+    .dot-ready     { background: var(--state-ready); }
+    .dot-paid      { background: var(--state-paid); }
+    .dot-suspended { background: var(--state-suspended); }
+    .dot-released  { background: var(--state-released); }
+
+    .dot-suspended.pulse-slow {
+      animation: pulseSlow 1.6s ease-in-out 3;
+    }
+    .dot-suspended.pulse-fast {
+      animation: pulseFast 0.35s ease-in-out infinite;
+    }
+    @keyframes pulseSlow {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.75); }
+    }
+    @keyframes pulseFast {
+      0%,100% { opacity: 1; transform: scale(1.25); }
+      50%      { opacity: 0.35; transform: scale(0.7); }
+    }
+
+    .status-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .lbl-ready     { color: var(--state-ready); }
+    .lbl-paid      { color: var(--state-paid); }
+    .lbl-suspended { color: var(--state-suspended); }
+    .lbl-released  { color: var(--state-released); }
+
+    .status-extra {
+      font-size: 10px;
+      font-style: italic;
+      white-space: nowrap;
+    }
+    .extra-checking  { color: var(--text-secondary); animation: blink 0.9s step-end infinite; }
+    .extra-recheck   { color: var(--state-released); }
+    .extra-releasing { color: var(--state-suspended); animation: blink 0.5s step-end infinite; }
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.2; }
+    }
+
+    /* ===== ACCOUNTING FOOTER ===== */
+    .accounting-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px var(--sp2);
+      background: var(--surface-raised);
+      border-top: 1px solid var(--border);
+    }
+    .acct-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+    }
+    .acct-equation {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .acct-sep   { color: var(--text-secondary); font-weight: 400; }
+    .acct-total { color: var(--text-primary); }
+    .acct-ok    { color: var(--state-paid); font-size: 12px; }
+    .paid-val      { color: var(--state-paid); }
+    .ready-val     { color: var(--state-ready); }
+    .suspended-val { color: var(--state-suspended); }
+    .released-val  { color: var(--state-released); }
+
+    /* ===== VAULT BALANCE ===== */
+    .vault-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px var(--sp2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: var(--sp2);
+      font-size: 12px;
+      transition: opacity 300ms;
+    }
+    .vault-lbl { color: var(--text-secondary); }
+    .vault-lbl strong {
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .vault-amount {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      transition: color 400ms;
+    }
+    .vault-amount.held     { color: var(--state-suspended); }
+    .vault-amount.releasing { color: var(--state-released); }
+    .vault-amount.zero     { color: var(--text-secondary); }
+
+    /* ===== EVIDENCE SECTION ===== */
+    .evidence-section {
+      margin-bottom: var(--sp2);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 350ms ease, transform 350ms ease;
+    }
+    .evidence-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .evidence-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .evidence-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .ev-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px 9px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-mono);
+      text-decoration: none;
+      transition: border-color 180ms, color 180ms;
+      cursor: default;
+    }
+    a.ev-chip { cursor: pointer; }
+    a.ev-chip:hover { border-color: #344762; color: var(--text-primary); }
+    .ev-chip-label {
+      font-family: var(--font-ui);
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-secondary);
+    }
+    .ev-chip-link { font-size: 10px; color: var(--text-secondary); }
+    .ev-chip-note { font-size: 9px; color: var(--text-secondary); font-style: italic; font-family: var(--font-ui); }
+
+    .ev-chip.alloc-chip {
+      border-color: rgba(245,158,11,0.3);
+      background: rgba(245,158,11,0.05);
+    }
+    .ev-chip.alloc-chip .ev-chip-hash { color: var(--state-suspended); }
+    .ev-chip.alloc-chip-released {
+      border-color: rgba(34,197,94,0.3);
+      background: rgba(34,197,94,0.05);
+    }
+    .ev-chip.alloc-chip-released .ev-chip-hash { color: var(--state-released); }
+
+    /* Same-allocation annotation */
+    .same-alloc-ann {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: rgba(34,197,94,0.07);
+      border: 1px solid rgba(34,197,94,0.18);
+      border-radius: 5px;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 400ms ease;
+    }
+    .same-alloc-ann.visible { opacity: 1; }
+    .ann-check { color: var(--state-released); font-weight: 700; }
+    .ann-text  { color: var(--text-primary); }
+    .ann-id {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--state-released);
+      font-weight: 500;
+    }
+
+    /* ===== REJECTION BANNER ===== */
+    .rejection-banner {
+      padding: 13px var(--sp2);
+      background: rgba(239,68,68,0.09);
+      border: 1px solid rgba(239,68,68,0.25);
+      border-left: 3px solid #EF4444;
+      border-radius: 6px;
+      margin-bottom: var(--sp2);
+      opacity: 0;
+      transition: opacity 400ms;
+    }
+    .rejection-banner.visible { opacity: 1; }
+    .rejection-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #EF4444;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+    .rejection-detail {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* ===== FINAL SUMMARY ===== */
+    .final-summary {
+      padding: var(--sp3) var(--sp3);
+      background: var(--surface);
+      border: 1px solid rgba(34,197,94,0.18);
+      border-top: 2px solid rgba(34,197,94,0.35);
+      border-radius: 8px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 450ms;
+    }
+    .final-summary.visible { opacity: 1; }
+    .final-summary-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--state-released);
+      margin-bottom: var(--sp2);
+      letter-spacing: -0.01em;
+    }
+    .final-stats {
+      display: flex;
+      justify-content: center;
+      gap: var(--sp4);
+      margin-bottom: var(--sp2);
+    }
+    .f-stat .stat-val {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+    }
+    .f-stat .stat-lbl {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .final-tagline {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: var(--sp2);
+    }
+    .btn-replay {
+      background: var(--state-released);
+      border: none;
+      color: #051a09;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 28px;
+      border-radius: 5px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      transition: opacity 180ms, transform 180ms;
+    }
+    .btn-replay:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      /* ── App padding ── */
+      .app { padding: 12px; }
+
+      /* ── Header ── */
+      .header { flex-direction: column; gap: 10px; }
+      .header-meta { align-items: flex-start; }
+
+      /* ── Step navigator: wrap so label gets its own row ── */
+      .step-nav {
+        flex-wrap: wrap;
+        gap: 8px 6px;
+      }
+      .step-indicator {
+        flex: 0 0 100%;
+        order: 10;
+        text-align: center;
+        padding-top: 6px;
+        border-top: 1px solid var(--border);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      /* ── Allocation table: drop the # column ── */
+      .alloc-thead > div:first-child,
+      .alloc-row > .row-num {
+        display: none;
+      }
+      .alloc-thead,
+      .alloc-row {
+        grid-template-columns: 72px 1fr 72px 92px;
+      }
+      .alloc-thead { font-size: 9px; }
+      .alloc-row   { font-size: 12px; }
+      .row-holder  { font-size: 10px; }
+      .row-amount  { font-size: 11px; }
+      .status-label { font-size: 10px; }
+      .alloc-id-pill { font-size: 9px; }
+
+      /* ── Accounting footer: shrink font so equation fits on one line ── */
+      .acct-equation { font-size: 11px; gap: 5px; }
+      .accounting-footer { padding: 9px 12px; }
+
+      /* ── Misc ── */
+      .final-stats { gap: var(--sp3); }
+      .evidence-chips { gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div>
+      <div class="header-title">Bond Coupon Distribution — SPNS01</div>
+      <div class="header-subtitle">Suspense Protocol &middot; Compliance-Gated Distribution &middot; Evidence Reconstruction</div>
+    </div>
+    <div class="header-meta">
+      <span class="chain-badge">Chain: Monad Testnet (10143)</span>
+      <span class="addr-tag" title="0xA17EaB812000679FE3C87a0C4a29Cf8A0714A7bD">SPNS01: 0xA17E&hellip;A7bD</span>
+      <span class="addr-tag" title="0xA94C6cF70570e0D360D668E0113132c57a6C88E0">SuspenseVault: 0xA94C&hellip;88E0</span>
+    </div>
+  </header>
+
+  <!-- ===== UX TRUTH BANNER ===== -->
+  <div class="truth-banner">
+    <div class="truth-icon">&#9872;</div>
+    <div>
+      <div class="truth-title">Historical Evidence Mode</div>
+      <div class="truth-step-line" id="truth-step-line">Replaying verified on-chain sequence &mdash; Gate E &rarr; Gate F</div>
+      <div class="truth-static-line">All data from canonical transaction receipts &middot; Testnet Chain ID 10143 (not mainnet)</div>
+      <div class="truth-static-line">Latest documented state: RELEASED (Gate F evidence)</div>
+    </div>
+  </div>
+
+  <!-- ===== STEP NAVIGATOR ===== -->
+  <div class="step-nav">
+    <button class="btn" id="btn-prev" onclick="prevStep()" disabled>&larr; Prev</button>
+    <div class="step-indicator">
+      Step <span class="step-n" id="step-num">1</span> of 9
+      &mdash;
+      <span class="step-label" id="step-short-label">Initial State: READY</span>
+    </div>
+    <button class="btn" id="btn-next" onclick="nextStep()">Next &rarr;</button>
+    <button class="btn btn-ghost" onclick="restartDemo()">Restart</button>
+  </div>
+
+  <!-- ===== STEP META BAR ===== -->
+  <div class="step-meta-bar">
+    <div class="step-badge" id="step-badge">&bull; Initial State &mdash; Pre-Distribution</div>
+    <div class="action-chip" id="action-chip"></div>
+  </div>
+
+  <!-- ===== TIMELINE SEPARATOR ===== -->
+  <div class="timeline-sep" id="timeline-sep">
+    &mdash;&ensp;Eligibility clears &mdash; A-Pass reactivated for Holder 5&ensp;&mdash;
+  </div>
+
+  <!-- ===== ALLOCATION TABLE ===== -->
+  <div class="alloc-section">
+    <div class="alloc-thead">
+      <div>#</div>
+      <div>Holder</div>
+      <div>Allocation ID</div>
+      <div class="col-amount">Amount</div>
+      <div class="col-status">Status</div>
+    </div>
+
+    <div class="alloc-row s-ready" id="row-1">
+      <div class="row-num">1</div>
+      <div class="row-holder">Holder 1</div>
+      <div class="row-alloc-id"><span class="alloc-id-empty">&mdash;</span></div>
+      <div class="row-amount">1.0 SPNS01</div>
+      <div class="row-status-cell">
+        <span class="status-dot dot-ready"></span>
+        <span class="status-label lbl-ready">READY</span>
+      </div>
+    </div>
+
+    <div class="alloc-row s-ready" id="row-2">
+      <div class="row-num">2</div>
+      <div class="row-holder">Holder 2</div>
+      <div class="row-alloc-id"><span class="alloc-id-empty">&mdash;</span></div>
+      <div class="row-amount">1.0 SPNS01</div>
+      <div class="row-status-cell">
+        <span class="status-dot dot-ready"></span>
+        <span class="status-label lbl-ready">READY</span>
+      </div>
+    </div>
+
+    <div class="alloc-row s-ready" id="row-3">
+      <div class="row-num">3</div>
+      <div class="row-holder">Holder 3</div>
+      <div class="row-alloc-id"><span class="alloc-id-empty">&mdash;</span></div>
+      <div class="row-amount">1.0 SPNS01</div>
+      <div class="row-status-cell">
+        <span class="status-dot dot-ready"></span>
+        <span class="status-label lbl-ready">READY</span>
+      </div>
+    </div>
+
+    <div class="alloc-row s-ready" id="row-4">
+      <div class="row-num">4</div>
+      <div class="row-holder">Holder 4</div>
+      <div class="row-alloc-id"><span class="alloc-id-empty">&mdash;</span></div>
+      <div class="row-amount">1.0 SPNS01</div>
+      <div class="row-status-cell">
+        <span class="status-dot dot-ready"></span>
+        <span class="status-label lbl-ready">READY</span>
+      </div>
+    </div>
+
+    <div class="alloc-row s-ready" id="row-5">
+      <div class="row-num">5</div>
+      <div class="row-holder">Holder 5</div>
+      <div class="row-alloc-id" id="row5-alloc-id"><span class="alloc-id-empty">&mdash;</span></div>
+      <div class="row-amount" id="row5-amount">1.0 SPNS01</div>
+      <div class="row-status-cell" id="row5-status">
+        <span class="status-dot dot-ready"></span>
+        <span class="status-label lbl-ready">READY</span>
+      </div>
+    </div>
+
+    <!-- Accounting footer lives inside the section -->
+    <div class="accounting-footer">
+      <div class="acct-label">Accounting</div>
+      <div class="acct-equation" id="acct-equation">
+        <span class="paid-val">0 PAID</span>
+        <span class="acct-sep">+</span>
+        <span class="ready-val">5 READY</span>
+        <span class="acct-sep">=</span>
+        <span class="acct-total">5 / 5 accounted</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CLEANVERSE PANEL ===== -->
+  <details class="cv-panel" id="cv-panel">
+    <summary>
+      <span class="cv-toggle">&#9654;</span>
+      Cleanverse Compliance Integration
+      <span class="cv-panel-tag">Policy: 0x3648&hellip;CB12Dd &middot; cvRecordId: 1929 &middot; tier: 50</span>
+    </summary>
+    <div class="cv-body" id="cv-body">
+      <!-- filled by JS -->
+    </div>
+  </details>
+
+  <!-- ===== VAULT BALANCE ===== -->
+  <div class="vault-section" id="vault-section" style="display:none;">
+    <div class="vault-lbl">
+      SuspenseVault (<strong title="0xA94C6cF70570e0D360D668E0113132c57a6C88E0">0xA94C&hellip;88E0</strong>) holds:
+    </div>
+    <div class="vault-amount held" id="vault-amount">1.0 SPNS01 (for Holder 5)</div>
+  </div>
+
+  <!-- ===== EVIDENCE SECTION ===== -->
+  <div class="evidence-section" id="evidence-section">
+    <div class="evidence-title">On-Chain Evidence</div>
+    <div class="evidence-chips" id="evidence-chips"></div>
+    <div class="same-alloc-ann" id="same-alloc-ann">
+      <span class="ann-check">&#10003;</span>
+      <span class="ann-text">Same allocation ID in both SUSPENDED and RELEASED states:</span>
+      <span class="ann-id" title="0x10a3b35d0496c5126a0ccb2d7f09a221dc73af57f372b742ba1d90980f97e0d4">0x10a3&hellip;e0d4</span>
+      <span class="ann-text" style="color:var(--text-secondary);font-size:11px;">&mdash; proof of no duplication</span>
+    </div>
+  </div>
+
+  <!-- ===== REJECTION BANNER ===== -->
+  <div class="rejection-banner" id="rejection-banner">
+    <div class="rejection-title">Allocation Already Released &mdash; Duplicate Rejected</div>
+    <div class="rejection-detail">release(0x10a3&hellip;e0d4) &rarr; REVERT: AlreadyReleased &mdash; on-chain guard enforced</div>
+  </div>
+
+  <!-- ===== FINAL SUMMARY ===== -->
+  <div class="final-summary" id="final-summary">
+    <div class="final-summary-title">Distribution Complete &mdash; 5 / 5 Accounted</div>
+    <div class="final-stats">
+      <div class="f-stat">
+        <div class="stat-val paid-val">4</div>
+        <div class="stat-lbl">PAID</div>
+      </div>
+      <div class="f-stat">
+        <div class="stat-val released-val">1</div>
+        <div class="stat-lbl">RELEASED</div>
+      </div>
+      <div class="f-stat">
+        <div class="stat-val" style="color:var(--text-secondary);">0</div>
+        <div class="stat-lbl">LOST</div>
+      </div>
+      <div class="f-stat">
+        <div class="stat-val" style="color:var(--text-secondary);">0</div>
+        <div class="stat-lbl">DUPLICATES</div>
+      </div>
+    </div>
+    <div class="final-tagline">No value lost. No duplicates possible. Full audit trail.</div>
+    <button class="btn-replay" onclick="restartDemo()">&#8635; Replay Demo</button>
+  </div>
+
+</div><!-- .app -->
+
+<script>
+/* ============================================================
+   CANONICAL EVIDENCE — HARDCODED, NO LIVE RPC CALLS
+   Source: canonical transaction receipts, Chain ID 10143
+   ============================================================ */
+const C = {
+  token:      '0xA17EaB812000679FE3C87a0C4a29Cf8A0714A7bD',
+  vault:      '0xA94C6cF70570e0D360D668E0113132c57a6C88E0',
+  cvPolicy:   '0x36489bE45fa84f70a0c2BDB11D824Be608CB12Dd',
+  chainId:    10143,
+  gateETx:    '0xc233b0f462ff956d695fb81ba358c2756b9f2aee2c4ff08f4b7f7db3216a3779',
+  gateFTx:    '0x32954d2ac039c0eec8401a6efe00723e34935e94ea8feddb7cd36e4fa531cc31',
+  unfreezeTx: '0xfc40f6caaf1a30a681b29e6bd691bc24dbdfee71046b99ad83236feee6ccb2d5',
+  allocId:    '0x10a3b35d0496c5126a0ccb2d7f09a221dc73af57f372b742ba1d90980f97e0d4',
+  explorer:   'https://testnet.monadscan.com/tx/',
+};
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function trunc(hash, pre = 6, suf = 4) {
+  return hash.slice(0, pre) + '…' + hash.slice(-suf);
+}
+
+function txChip(tx, label) {
+  const url = C.explorer + tx;
+  return `<a class="ev-chip" href="${url}" target="_blank" rel="noopener" title="${tx}">
+    <span class="ev-chip-label">${label}</span>
+    <span class="ev-chip-hash">${trunc(tx)}</span>
+    <span class="ev-chip-link">&#8599;</span>
+  </a>`;
+}
+
+function allocChip(label, cls = 'alloc-chip') {
+  return `<span class="ev-chip ${cls}" title="${C.allocId}">
+    <span class="ev-chip-label">${label}</span>
+    <span class="ev-chip-hash">${trunc(C.allocId)}</span>
+  </span>`;
+}
+
+/* ============================================================
+   CV CONTENT BUILDERS
+   ============================================================ */
+function cvPolicy() {
+  return `<div class="cv-policy">canTransfer() hook → SuspenseVault<br>
+Policy: ${C.cvPolicy}<br>
+Vault A-Pass: cvRecordId=1929, tier=50</div>`;
+}
+
+function cvDefault() {
+  return cvPolicy() + `<div class="cv-results">
+    <div class="cv-row">
+      <span class="cv-holder">Pre-distribution — eligibility not yet checked</span>
+    </div>
+  </div>`;
+}
+
+function cvScanning() {
+  return cvPolicy() + `<div class="cv-results">
+    <div class="cv-row row-scanning">
+      <span class="cv-holder">Checking eligibility per holder…</span>
+      <span class="cv-result pending">scanning…</span>
+    </div>
+  </div>`;
+}
+
+function cvPartial() {
+  const rows14 = [1,2,3,4].map(h =>
+    `<div class="cv-row">
+      <span class="cv-holder">Holder ${h}</span>
+      <span class="cv-result allowed">canTransfer() → ALLOWED</span>
+    </div>`
+  ).join('');
+  return cvPolicy() + `<div class="cv-results">${rows14}
+    <div class="cv-row row-scanning">
+      <span class="cv-holder">Holder 5</span>
+      <span class="cv-result pending">checking…</span>
+    </div>
+  </div>`;
+}
+
+function cvSuspended() {
+  const rows14 = [1,2,3,4].map(h =>
+    `<div class="cv-row">
+      <span class="cv-holder">Holder ${h}</span>
+      <span class="cv-result allowed">canTransfer() → ALLOWED</span>
+    </div>`
+  ).join('');
+  return cvPolicy() + `<div class="cv-results">${rows14}
+    <div class="cv-row row-suspended">
+      <span class="cv-holder">Holder 5</span>
+      <span class="cv-result blocked">canTransfer() → BLOCKED | APassNotActive</span>
+    </div>
+  </div>`;
+}
+
+function cvRecheck() {
+  const rows14 = [1,2,3,4].map(h =>
+    `<div class="cv-row">
+      <span class="cv-holder">Holder ${h}</span>
+      <span class="cv-result allowed">canTransfer() → ALLOWED</span>
+    </div>`
+  ).join('');
+  return cvPolicy() + `<div class="cv-results">${rows14}
+    <div class="cv-row row-released">
+      <span class="cv-holder">Holder 5</span>
+      <span class="cv-result recheck">Fresh canTransfer() → ALLOWED (A-Pass reactivated)</span>
+    </div>
+  </div>`;
+}
+
+function cvReleased() {
+  const rows14 = [1,2,3,4].map(h =>
+    `<div class="cv-row">
+      <span class="cv-holder">Holder ${h}</span>
+      <span class="cv-result allowed">canTransfer() → ALLOWED</span>
+    </div>`
+  ).join('');
+  return cvPolicy() + `<div class="cv-results">${rows14}
+    <div class="cv-row row-released">
+      <span class="cv-holder">Holder 5</span>
+      <span class="cv-result recheck">canTransfer() → ALLOWED → Released via Gate F</span>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   STEP CONFIGURATION
+   Each step defines the full visual state.
+   ============================================================ */
+const STEPS = {
+  1: {
+    shortLabel:   'Initial State: READY',
+    truthLine:    'Replaying verified on-chain sequence — Gate E → Gate F',
+    badge:        '● Initial State — Pre-Distribution',
+    action:       '',
+    cvOpen:       false,
+    cvContent:    cvDefault,
+    timelineSep:  false,
+    rows: () => [
+      { state:'ready', extra:null, pill:null },
+      { state:'ready', extra:null, pill:null },
+      { state:'ready', extra:null, pill:null },
+      { state:'ready', extra:null, pill:null },
+      { state:'ready', extra:null, pill:null },
+    ],
+    acct: { paid:0, rightCount:5, rightState:'ready',     rightLabel:'READY' },
+    vault: null,
+    chips: '',
+    sameAlloc: false,
+    rejection: false,
+    summary: false,
+  },
+
+  2: {
+    shortLabel:   'distribute() triggered',
+    truthLine:    'Replaying verified on-chain sequence — Gate E → Gate F',
+    badge:        '⟳ Eligibility Scan Running',
+    action:       'distribute() → SuspenseVault',
+    cvOpen:       true,
+    cvContent:    cvScanning,
+    timelineSep:  false,
+    rows: () => [
+      { state:'ready', extra:null, pill:null },
+      { state:'ready', extra:null, pill:null },
+      { state:'ready', extra:null, pill:null },
+      { state:'ready', extra:null, pill:null },
+      { state:'ready', extra:null, pill:null },
+    ],
+    acct: { paid:0, rightCount:5, rightState:'ready',     rightLabel:'READY' },
+    vault: null,
+    chips: '',
+    sameAlloc: false,
+    rejection: false,
+    summary: false,
+  },
+
+  3: {
+    shortLabel:   'Holders 1–4 PAID',
+    truthLine:    'Gate E: Holders 1–4 → canTransfer() ALLOWED → PAID',
+    badge:        '✓ Partial Settlement — 4 of 5 Paid',
+    action:       'distribute() → Holders 1–4 settled',
+    cvOpen:       true,
+    cvContent:    cvPartial,
+    timelineSep:  false,
+    rows: () => [
+      { state:'paid',  extra:null,       pill:null },
+      { state:'paid',  extra:null,       pill:null },
+      { state:'paid',  extra:null,       pill:null },
+      { state:'paid',  extra:null,       pill:null },
+      { state:'ready', extra:'checking', pill:null },
+    ],
+    acct: { paid:4, rightCount:1, rightState:'ready',     rightLabel:'READY' },
+    vault: null,
+    chips: '',
+    sameAlloc: false,
+    rejection: false,
+    summary: false,
+  },
+
+  4: {
+    shortLabel:   'Holder 5 SUSPENDED',
+    truthLine:    'Gate E: Holder 5 → canTransfer() BLOCKED | APassNotActive → SUSPENDED',
+    badge:        '⏸ Distribution Held — Intentional',
+    action:       'Holder 5 suspended — vault holds 1.0 SPNS01',
+    cvOpen:       true,
+    cvContent:    cvSuspended,
+    timelineSep:  false,
+    rows: () => [
+      { state:'paid',      extra:null,  pill:null },
+      { state:'paid',      extra:null,  pill:null },
+      { state:'paid',      extra:null,  pill:null },
+      { state:'paid',      extra:null,  pill:null },
+      { state:'suspended', extra:null,  pill:'suspended', pulseSlow:true },
+    ],
+    acct: { paid:4, rightCount:1, rightState:'suspended', rightLabel:'SUSPENDED' },
+    vault: { text:'1.0 SPNS01 (held for Holder 5)', cls:'held' },
+    chips: '',
+    sameAlloc: false,
+    rejection: false,
+    summary: false,
+  },
+
+  5: {
+    shortLabel:   'Gate E Evidence',
+    truthLine:    'Viewing: Historical Gate E state — distribution event documented',
+    badge:        '⊞ Gate E Evidence Attached',
+    action:       '',
+    cvOpen:       true,
+    cvContent:    cvSuspended,
+    timelineSep:  false,
+    rows: () => [
+      { state:'paid',      extra:null,  pill:null },
+      { state:'paid',      extra:null,  pill:null },
+      { state:'paid',      extra:null,  pill:null },
+      { state:'paid',      extra:null,  pill:null },
+      { state:'suspended', extra:null,  pill:'suspended', pulseSlow:true },
+    ],
+    acct: { paid:4, rightCount:1, rightState:'suspended', rightLabel:'SUSPENDED' },
+    vault: { text:'1.0 SPNS01 (held for Holder 5)', cls:'held' },
+    chips: () => txChip(C.gateETx, 'Gate E Distribution') + allocChip('Suspended Allocation', 'alloc-chip'),
+    sameAlloc: false,
+    rejection: false,
+    summary: false,
+  },
+
+  6: {
+    shortLabel:   'Eligibility Clears',
+    truthLine:    'Eligibility cleared — fresh canTransfer() recheck required before release',
+    badge:        '↻ Eligibility Recheck — A-Pass Reactivated',
+    action:       'Holder 5 A-Pass reactivated — recheck → ALLOWED',
+    cvOpen:       true,
+    cvContent:    cvRecheck,
+    timelineSep:  true,
+    rows: () => [
+      { state:'paid',      extra:null,     pill:null },
+      { state:'paid',      extra:null,     pill:null },
+      { state:'paid',      extra:null,     pill:null },
+      { state:'paid',      extra:null,     pill:null },
+      { state:'suspended', extra:'recheck', pill:'suspended' },
+    ],
+    acct: { paid:4, rightCount:1, rightState:'suspended', rightLabel:'SUSPENDED' },
+    vault: { text:'1.0 SPNS01 (held for Holder 5)', cls:'held' },
+    chips: () =>
+      txChip(C.gateETx, 'Gate E Distribution') +
+      allocChip('Suspended Allocation', 'alloc-chip') +
+      txChip(C.unfreezeTx, 'Cleanverse Unfreeze'),
+    sameAlloc: false,
+    rejection: false,
+    summary: false,
+  },
+
+  7: {
+    shortLabel:   'release(allocationId) triggered',
+    truthLine:    'Release triggered — same allocationId as SUSPENDED event',
+    badge:        '⟳ Release In Progress',
+    action:       'release(0x10a3…e0d4) → SuspenseVault',
+    cvOpen:       true,
+    cvContent:    cvRecheck,
+    timelineSep:  true,
+    rows: () => [
+      { state:'paid',      extra:null,       pill:null },
+      { state:'paid',      extra:null,       pill:null },
+      { state:'paid',      extra:null,       pill:null },
+      { state:'paid',      extra:null,       pill:null },
+      { state:'suspended', extra:'releasing', pill:'releasing', pulseFast:true },
+    ],
+    acct: { paid:4, rightCount:1, rightState:'suspended', rightLabel:'SUSPENDED' },
+    vault: { text:'1.0 SPNS01 (releasing…)', cls:'releasing' },
+    chips: () =>
+      txChip(C.gateETx, 'Gate E Distribution') +
+      allocChip('Releasing Allocation', 'alloc-chip') +
+      txChip(C.unfreezeTx, 'Cleanverse Unfreeze'),
+    sameAlloc: false,
+    rejection: false,
+    summary: false,
+  },
+
+  8: {
+    shortLabel:   'RELEASED — Gate F',
+    truthLine:    'Latest documented state: RELEASED (Gate F evidence)',
+    badge:        '✓ RELEASED — Full Audit Trail',
+    action:       'Gate F: release() confirmed on-chain',
+    cvOpen:       true,
+    cvContent:    cvReleased,
+    timelineSep:  true,
+    animateRow5:  true,
+    rows: () => [
+      { state:'paid',     extra:null, pill:null },
+      { state:'paid',     extra:null, pill:null },
+      { state:'paid',     extra:null, pill:null },
+      { state:'paid',     extra:null, pill:null },
+      { state:'released', extra:null, pill:'released' },
+    ],
+    acct: { paid:4, rightCount:1, rightState:'released', rightLabel:'RELEASED' },
+    vault: { text:'0.0 SPNS01 (Holder 5 received 1.0 SPNS01)', cls:'zero' },
+    chips: () =>
+      txChip(C.gateETx, 'Gate E Distribution') +
+      allocChip('Allocation (SUSPENDED)', 'alloc-chip') +
+      txChip(C.unfreezeTx, 'Cleanverse Unfreeze') +
+      txChip(C.gateFTx, 'Gate F Release') +
+      allocChip('Allocation (RELEASED)', 'alloc-chip alloc-chip-released'),
+    sameAlloc: true,
+    rejection: false,
+    summary: false,
+  },
+
+  9: {
+    shortLabel:   'Duplicate Blocked',
+    truthLine:    'Latest documented state: RELEASED (Gate F evidence) — duplicate rejected',
+    badge:        '✗ Duplicate Release Rejected',
+    action:       'Second release attempt → REVERTED',
+    cvOpen:       false,
+    cvContent:    cvReleased,
+    timelineSep:  true,
+    rows: () => [
+      { state:'paid',     extra:null, pill:null },
+      { state:'paid',     extra:null, pill:null },
+      { state:'paid',     extra:null, pill:null },
+      { state:'paid',     extra:null, pill:null },
+      { state:'released', extra:null, pill:'released' },
+    ],
+    acct: { paid:4, rightCount:1, rightState:'released', rightLabel:'RELEASED' },
+    vault: { text:'0.0 SPNS01', cls:'zero' },
+    chips: () =>
+      txChip(C.gateETx, 'Gate E Distribution') +
+      allocChip('Allocation ID', 'alloc-chip alloc-chip-released') +
+      txChip(C.unfreezeTx, 'Cleanverse Unfreeze') +
+      txChip(C.gateFTx, 'Gate F Release'),
+    sameAlloc: true,
+    rejection: true,
+    summary: true,
+  },
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentStep   = 1;
+const TOTAL       = 9;
+let animTimeouts  = [];   // pending animation timeouts — cleared on navigation
+
+function sched(fn, delay) {
+  animTimeouts.push(setTimeout(fn, delay));
+}
+
+/* ============================================================
+   ROW RENDERING
+   ============================================================ */
+function renderRow(rowEl, rowData) {
+  // State class
+  rowEl.className = `alloc-row s-${rowData.state}`;
+
+  // Allocation ID (only row 5 gets a pill; rows 1-4 always show —)
+  const rowIndex = parseInt(rowEl.id.replace('row-', ''), 10);
+  if (rowIndex === 5) {
+    const allocEl = document.getElementById('row5-alloc-id');
+    if (rowData.pill === 'suspended') {
+      allocEl.innerHTML = `<span class="alloc-id-pill suspended-pill" title="${C.allocId}">${trunc(C.allocId)}</span>`;
+    } else if (rowData.pill === 'released') {
+      allocEl.innerHTML = `<span class="alloc-id-pill released-pill" title="${C.allocId}">${trunc(C.allocId)}</span>`;
+    } else if (rowData.pill === 'releasing') {
+      allocEl.innerHTML = `<span class="alloc-id-pill releasing-pill" title="${C.allocId}">${trunc(C.allocId)} → RELEASING</span>`;
+    } else {
+      allocEl.innerHTML = `<span class="alloc-id-empty">&mdash;</span>`;
+    }
+  }
+
+  // Status cell (only row 5 is dynamic for status; rows 1-4 are static except for state)
+  if (rowIndex === 5) {
+    const statusEl = document.getElementById('row5-status');
+    let dotClass = `status-dot dot-${rowData.state}`;
+    if (rowData.pulseFast) dotClass += ' pulse-fast';
+    else if (rowData.pulseSlow) dotClass += ' pulse-slow';
+
+    let extraHtml = '';
+    if (rowData.extra === 'checking') {
+      extraHtml = `<span class="status-extra extra-checking">checking…</span>`;
+    } else if (rowData.extra === 'recheck') {
+      extraHtml = `<span class="status-extra extra-recheck">Recheck: ALLOWED → Release pending</span>`;
+    } else if (rowData.extra === 'releasing') {
+      extraHtml = `<span class="status-extra extra-releasing">→ RELEASING</span>`;
+    }
+
+    statusEl.innerHTML = `
+      <span class="${dotClass}"></span>
+      <span class="status-label lbl-${rowData.state}">${rowData.state.toUpperCase()}</span>
+      ${extraHtml}
+    `;
+  } else {
+    // Rows 1-4: state is either ready or paid
+    const statusEl = rowEl.querySelector('.row-status-cell');
+    if (statusEl) {
+      statusEl.innerHTML = `
+        <span class="status-dot dot-${rowData.state}"></span>
+        <span class="status-label lbl-${rowData.state}">${rowData.state.toUpperCase()}</span>
+      `;
+    }
+  }
+}
+
+/* ============================================================
+   ACCOUNTING FOOTER RENDERING
+   ============================================================ */
+function renderAccounting(acct) {
+  const eq = document.getElementById('acct-equation');
+  const { paid, rightCount, rightState, rightLabel } = acct;
+  const total = paid + rightCount;
+  const isBalanced = total === 5;
+
+  let rightSpan = '';
+  if (rightState === 'ready') {
+    rightSpan = `<span class="ready-val">${rightCount} ${rightLabel}</span>`;
+  } else if (rightState === 'suspended') {
+    rightSpan = `<span class="suspended-val">${rightCount} ${rightLabel}</span>`;
+  } else if (rightState === 'released') {
+    rightSpan = `<span class="released-val">${rightCount} ${rightLabel}</span>`;
+  }
+
+  const checkHtml = isBalanced && rightState !== 'ready'
+    ? `<span class="acct-ok"> ✓</span>`
+    : '';
+
+  eq.innerHTML = `
+    <span class="paid-val">${paid} PAID</span>
+    <span class="acct-sep">+</span>
+    ${rightSpan}
+    <span class="acct-sep">=</span>
+    <span class="acct-total">${total} / 5 accounted</span>
+    ${checkHtml}
+  `;
+}
+
+/* ============================================================
+   MAIN RENDER FUNCTION
+   animateRelease : true when entering Step 8 forward from Step 7
+   animateScan    : true when entering Step 2 forward from Step 1
+   animateStagger : true when entering Step 3 forward from Step 2
+   ============================================================ */
+function renderStep(step, animateRelease, animateScan, animateStagger) {
+  const s = STEPS[step];
+  if (!s) return;
+
+  /* --- Nav --- */
+  document.getElementById('step-num').textContent = step;
+  document.getElementById('step-short-label').textContent = s.shortLabel;
+  document.getElementById('btn-prev').disabled = step === 1;
+  document.getElementById('btn-next').disabled = step === TOTAL;
+
+  /* --- Truth banner --- */
+  document.getElementById('truth-step-line').textContent = s.truthLine;
+
+  /* --- Step meta --- */
+  document.getElementById('step-badge').textContent = s.badge;
+  document.getElementById('action-chip').textContent = s.action;
+
+  /* --- Cleanverse --- */
+  const cvPanel = document.getElementById('cv-panel');
+  if (s.cvOpen) cvPanel.setAttribute('open', '');
+  else cvPanel.removeAttribute('open');
+  document.getElementById('cv-body').innerHTML = s.cvContent();
+
+  /* --- Timeline separator --- */
+  const tlSep = document.getElementById('timeline-sep');
+  tlSep.classList.toggle('visible', !!s.timelineSep);
+
+  /* --- Helper: render non-row elements to final state --- */
+  function renderStaticElements() {
+    renderAccounting(s.acct);
+    const vsec = document.getElementById('vault-section');
+    if (s.vault) {
+      vsec.style.display = 'flex';
+      const va = document.getElementById('vault-amount');
+      va.textContent = s.vault.text;
+      va.className = `vault-amount ${s.vault.cls}`;
+    } else {
+      vsec.style.display = 'none';
+    }
+    const esec = document.getElementById('evidence-section');
+    const cel  = document.getElementById('evidence-chips');
+    const cc   = typeof s.chips === 'function' ? s.chips() : s.chips;
+    if (cc) { cel.innerHTML = cc; esec.classList.add('visible'); }
+    else    { cel.innerHTML = ''; esec.classList.remove('visible'); }
+    document.getElementById('same-alloc-ann').classList.toggle('visible', !!s.sameAlloc);
+    document.getElementById('rejection-banner').classList.toggle('visible', !!s.rejection);
+    document.getElementById('final-summary').classList.toggle('visible', !!s.summary);
+  }
+
+  /* --- Row data & Row 5 element --- */
+  const rowData = s.rows();
+  const row5    = document.getElementById('row-5');
+
+  /* ============================================================
+     STEP 8 — ATOMIC TRUTH SEQUENCE
+     Rule: no frame may show SUSPENDED alongside RELEASED
+           accounting, vault values, or Gate-F evidence.
+
+     t=0      Gate-E truth across ALL elements; flash begins
+     t=150ms  Row 5 → RELEASED (flash ends)
+     t=250ms  Accounting → 4 PAID + 1 RELEASED = 5/5
+     t=400ms  Vault → 0.0 SPNS01 / Holder 5 receives 1.0
+     t=550ms  Gate-F evidence chips appear
+     t=700ms  "Same allocation" annotation appears
+  ============================================================ */
+  if (animateRelease && s.animateRow5) {
+    // Rows 1-4 final state (unchanged across step 7→8)
+    for (let i = 0; i < 4; i++) {
+      renderRow(document.getElementById(`row-${i+1}`), rowData[i]);
+    }
+
+    // Phase 0: Row 5 + all dependent elements show Gate-E / SUSPENDED truth
+    renderRow(row5, { state:'suspended', extra:null, pill:'suspended' });
+    renderAccounting({ paid:4, rightCount:1, rightState:'suspended', rightLabel:'SUSPENDED' });
+
+    const vsec8 = document.getElementById('vault-section');
+    vsec8.style.display = 'flex';
+    const va8 = document.getElementById('vault-amount');
+    va8.textContent = '1.0 SPNS01 (held for Holder 5)';
+    va8.className = 'vault-amount held';
+
+    const esec8 = document.getElementById('evidence-section');
+    const cel8  = document.getElementById('evidence-chips');
+    cel8.innerHTML = txChip(C.gateETx, 'Gate E Distribution') +
+                     allocChip('Allocation (SUSPENDED)', 'alloc-chip');
+    esec8.classList.add('visible');
+
+    document.getElementById('same-alloc-ann').classList.remove('visible');
+    document.getElementById('rejection-banner').classList.remove('visible');
+    document.getElementById('final-summary').classList.remove('visible');
+
+    // Start flash animation on Row 5
+    row5.classList.add('flash-release');
+
+    // t=150: Row 5 → RELEASED (flash ends)
+    sched(() => {
+      row5.classList.remove('flash-release');
+      renderRow(row5, rowData[4]);
+    }, 150);
+
+    // t=250: Accounting → 4 PAID + 1 RELEASED = 5/5
+    sched(() => { renderAccounting(s.acct); }, 250);
+
+    // t=400: Vault → 0.0 SPNS01
+    sched(() => {
+      va8.textContent = s.vault.text;
+      va8.className   = `vault-amount ${s.vault.cls}`;
+    }, 400);
+
+    // t=550: Full evidence chips (Gate E + Gate F)
+    sched(() => {
+      cel8.innerHTML = typeof s.chips === 'function' ? s.chips() : s.chips;
+    }, 550);
+
+    // t=700: Same-allocation annotation
+    sched(() => {
+      document.getElementById('same-alloc-ann').classList.toggle('visible', !!s.sameAlloc);
+    }, 700);
+
+    return;
+  }
+
+  /* ============================================================
+     STEP 2 — SEQUENTIAL ROW SCAN (rows 1→5, 220 ms stagger)
+     Each row gets a scan-flash then returns to static state.
+  ============================================================ */
+  if (animateScan) {
+    for (let i = 0; i < 4; i++) {
+      renderRow(document.getElementById(`row-${i+1}`), rowData[i]);
+    }
+    renderRow(row5, rowData[4]);
+    for (let i = 0; i < 5; i++) {
+      sched(() => {
+        const el = document.getElementById(`row-${i+1}`);
+        el.classList.add('scanning');
+        sched(() => el.classList.remove('scanning'), 600);
+      }, i * 220);
+    }
+    renderStaticElements();
+    return;
+  }
+
+  /* ============================================================
+     STEP 3 — STAGGERED READY→PAID (rows 1→4, 160 ms stagger)
+     Row 5 transitions to 'checking' after row 4 settles.
+  ============================================================ */
+  if (animateStagger) {
+    // Start rows 1-4 in READY
+    for (let i = 0; i < 4; i++) {
+      renderRow(document.getElementById(`row-${i+1}`), { state:'ready', extra:null, pill:null });
+    }
+    renderRow(row5, { state:'ready', extra:null, pill:null });
+
+    // Stagger rows 1→4 to PAID
+    for (let i = 0; i < 4; i++) {
+      sched(() => {
+        const el = document.getElementById(`row-${i+1}`);
+        renderRow(el, { state:'paid', extra:null, pill:null });
+        el.classList.add('scanning');
+        sched(() => el.classList.remove('scanning'), 400);
+      }, i * 160);
+    }
+    // Row 5 → checking state after row 4
+    sched(() => {
+      renderRow(row5, rowData[4]);
+    }, 4 * 160);
+
+    renderStaticElements();
+    return;
+  }
+
+  /* ============================================================
+     DEFAULT — Static render (no animation)
+  ============================================================ */
+  for (let i = 0; i < 4; i++) {
+    renderRow(document.getElementById(`row-${i+1}`), rowData[i]);
+  }
+  renderRow(row5, rowData[4]);
+  renderStaticElements();
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+function goTo(target) {
+  if (target < 1 || target > TOTAL) return;
+  // Cancel any in-flight animation timeouts from the previous step
+  animTimeouts.forEach(clearTimeout);
+  animTimeouts = [];
+  const from = currentStep;
+  currentStep = target;
+  renderStep(
+    currentStep,
+    target === 8 && from === 7,   // animateRelease
+    target === 2 && from === 1,   // animateScan
+    target === 3 && from === 2    // animateStagger
+  );
+}
+
+function prevStep()    { goTo(currentStep - 1); }
+function nextStep()    { goTo(currentStep + 1); }
+function restartDemo() { goTo(1); }
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderStep(1, false);
+</script>
+</body>
+</html>
