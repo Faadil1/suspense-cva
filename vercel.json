@@ -22,7 +22,7 @@
       ]
     },
     {
-      "source": "/api/(auth|distribute|release|deploy-runtime-vault)",
+      "source": "/api/(auth|distribute|release|fund|write-arm|write-status|deploy-runtime-vault)",
       "headers": [
         { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate" },
         { "key": "X-Content-Type-Options", "value": "nosniff" }

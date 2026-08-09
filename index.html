@@ -8,895 +8,372 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     * { margin: 0; }
-
     :root {
-      --void: #070706;
-      --paper: #eceae2;
-      --muted: #92928a;
-      --dim: #5d5d57;
-      --line: #2a2a25;
-      --line-strong: #44443d;
-      --acid: #d9ff43;
-      --hold: #ffb000;
-      --release: #8bffb0;
-      --danger: #ff5a4f;
-      --unknown: #a7a79f;
-      --display: "Arial Narrow", "Helvetica Neue Condensed", "Roboto Condensed", Arial, sans-serif;
-      --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-      --gate: 62%;
+      --void:#070706; --paper:#eceae2; --muted:#92928a; --dim:#5d5d57;
+      --line:#2a2a25; --line-strong:#44443d; --acid:#d9ff43;
+      --hold:#ffb000; --release:#8bffb0; --danger:#ff5a4f; --unknown:#a7a79f;
+      --display:"Arial Narrow","Helvetica Neue Condensed","Roboto Condensed",Arial,sans-serif;
+      --mono:"IBM Plex Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;
+      --gate:62%;
     }
+    html { scroll-behavior:smooth; }
+    body { min-height:100vh; background:var(--void); color:var(--paper); font-family:var(--mono); font-size:14px; line-height:1.45; overflow-x:hidden; }
+    button,input,a { font:inherit; }
+    button,a { color:inherit; }
+    ::selection { background:var(--acid); color:var(--void); }
+    .shell { width:min(1480px,calc(100% - 48px)); margin:0 auto; }
 
-    html { scroll-behavior: smooth; }
+    .masthead { min-height:82px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; border-bottom:1px solid var(--line-strong); position:relative; z-index:20; }
+    .wordmark { display:inline-flex; align-items:stretch; width:fit-content; font-family:var(--display); font-size:24px; font-weight:900; line-height:1; letter-spacing:.03em; }
+    .wordmark-gate { width:2px; min-height:24px; margin:-4px 3px; background:var(--paper); position:relative; }
+    .wordmark-gate::after { content:""; position:absolute; top:50%; left:-3px; width:8px; height:1px; background:var(--paper); }
+    .nav { display:flex; gap:24px; align-items:center; }
+    .nav a { text-decoration:none; text-transform:uppercase; font-size:10px; letter-spacing:.14em; color:var(--muted); }
+    .nav a:hover,.nav a:focus-visible { color:var(--paper); }
+    .live-lockup { justify-self:end; display:flex; align-items:center; gap:10px; text-transform:uppercase; font-size:10px; letter-spacing:.12em; color:var(--muted); }
+    .live-dot { width:7px; height:7px; background:var(--acid); box-shadow:0 0 0 1px var(--acid); animation:pulse 1.8s steps(2,end) infinite; }
+    @keyframes pulse { 50% { opacity:.2; } }
 
-    body {
-      min-height: 100vh;
-      background: var(--void);
-      color: var(--paper);
-      font-family: var(--mono);
-      font-size: 14px;
-      line-height: 1.45;
-      overflow-x: hidden;
+    .hero { min-height:calc(100vh - 82px); padding:48px 0 34px; display:grid; grid-template-rows:auto auto 1fr auto; gap:24px; border-bottom:1px solid var(--line-strong); }
+    .hero-top { display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,390px); gap:48px; align-items:end; }
+    .eyebrow,.section-index,.micro-label { text-transform:uppercase; font-size:10px; letter-spacing:.15em; color:var(--muted); }
+    .hero-title { margin-top:12px; max-width:1080px; font-family:var(--display); font-size:clamp(58px,8.8vw,150px); line-height:.82; letter-spacing:-.055em; text-transform:uppercase; font-weight:900; text-wrap:balance; }
+    .hero-title .line-2 { display:block; color:var(--muted); }
+    .hero-copy { border-top:1px solid var(--line-strong); padding-top:14px; color:var(--muted); font-family:Arial,Helvetica,sans-serif; font-size:14px; line-height:1.6; }
+    .hero-copy strong { color:var(--paper); font-weight:600; }
+
+    .live-strip { display:grid; grid-template-columns:1.2fr repeat(4,minmax(110px,.65fr)); border-top:1px solid var(--line-strong); border-bottom:1px solid var(--line-strong); min-height:62px; }
+    .live-strip-cell { padding:10px 14px; border-right:1px solid var(--line); display:flex; flex-direction:column; justify-content:center; gap:4px; min-width:0; }
+    .live-strip-cell:first-child { padding-left:0; }
+    .live-strip-cell:last-child { border-right:0; }
+    .live-strip-value { font-family:var(--display); font-size:22px; font-weight:800; text-transform:uppercase; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .live-strip-value.acid { color:var(--acid); }
+    .live-strip-value.warn { color:var(--hold); }
+    .live-scan-cell { position:relative; overflow:hidden; }
+    .live-scan-cell::after { content:""; position:absolute; left:0; right:0; bottom:0; height:2px; background:var(--acid); transform-origin:left; transform:scaleX(var(--refresh-progress,0)); transition:transform 1s linear; }
+
+    .chamber { position:relative; min-height:410px; border-top:1px solid var(--line-strong); border-bottom:1px solid var(--line-strong); display:grid; grid-template-rows:auto 1fr auto; overflow:hidden; }
+    .chamber::before { content:""; position:absolute; top:0; bottom:0; left:var(--gate); width:1px; background:var(--paper); opacity:.55; z-index:2; }
+    .chamber::after { content:"POLICY GATE"; position:absolute; top:0; left:var(--gate); transform:translate(-50%,-100%); padding:0 8px 7px; background:var(--void); color:var(--muted); font-size:9px; letter-spacing:.14em; white-space:nowrap; }
+    .chamber.live-flash::before { animation:gateFlash .7s ease; }
+    @keyframes gateFlash { 35% { background:var(--acid); box-shadow:0 0 24px rgba(217,255,67,.35); opacity:1; } }
+    .chamber-head,.chamber-foot { min-height:52px; display:grid; grid-template-columns:1fr auto; align-items:center; gap:20px; }
+    .chamber-head { border-bottom:1px solid var(--line); }
+    .chamber-foot { border-top:1px solid var(--line); }
+    .chamber-mode { display:flex; align-items:baseline; gap:10px; }
+    .chamber-mode strong { font-family:var(--display); font-size:18px; letter-spacing:.02em; text-transform:uppercase; }
+    .phase-readout { text-align:right; color:var(--muted); font-size:10px; letter-spacing:.12em; text-transform:uppercase; }
+    .allocation-list { display:grid; align-content:center; min-height:294px; }
+    .allocation-row { min-height:56px; display:grid; grid-template-columns:90px minmax(0,1fr) 126px; align-items:center; border-bottom:1px solid var(--line); position:relative; }
+    .allocation-row:last-child { border-bottom:0; }
+    .holder-id { display:flex; gap:12px; align-items:baseline; font-size:11px; }
+    .holder-id strong { font-size:14px; }
+    .holder-id span { color:var(--dim); }
+    .track { height:1px; background:var(--line-strong); position:relative; margin-right:22px; }
+    .track::before { content:""; position:absolute; top:-4px; left:calc(var(--gate) - 90px); width:8px; height:8px; border:1px solid var(--line-strong); background:var(--void); transform:translateX(-50%); z-index:3; }
+    .runner { position:absolute; top:50%; left:0; width:10px; height:10px; transform:translateY(-50%); background:var(--unknown); transition:left .65s cubic-bezier(.2,.8,.2,1),background .2s ease,box-shadow .2s ease; z-index:4; }
+    .allocation-state { text-align:right; text-transform:uppercase; font-family:var(--display); font-size:19px; font-weight:800; letter-spacing:.03em; color:var(--unknown); }
+    .allocation-row[data-state="queued"] .runner { left:3%; background:var(--dim); }
+    .allocation-row[data-state="scanning"] .runner,.allocation-row[data-state="recheck"] .runner { left:calc(var(--gate) - 94px); background:var(--paper); box-shadow:0 0 18px rgba(236,234,226,.22); }
+    .allocation-row[data-state="allowed"] .runner,.allocation-row[data-state="paid"] .runner,.allocation-row[data-state="released"] .runner { left:calc(100% - 10px); }
+    .allocation-row[data-state="blocked"] .runner,.allocation-row[data-state="suspended"] .runner { left:calc(var(--gate) - 94px); background:var(--hold); box-shadow:0 0 20px rgba(255,176,0,.18); }
+    .allocation-row[data-state="unknown"] .runner { left:calc(var(--gate) - 94px); background:var(--unknown); }
+    .allocation-row[data-state="allowed"] .runner,.allocation-row[data-state="paid"] .runner { background:var(--acid); }
+    .allocation-row[data-state="released"] .runner { background:var(--release); }
+    .allocation-row[data-state="allowed"] .allocation-state,.allocation-row[data-state="paid"] .allocation-state { color:var(--acid); }
+    .allocation-row[data-state="blocked"] .allocation-state,.allocation-row[data-state="suspended"] .allocation-state { color:var(--hold); }
+    .allocation-row[data-state="released"] .allocation-state { color:var(--release); }
+    .allocation-row[data-state="unknown"] .allocation-state { color:var(--unknown); }
+    .allocation-row.scan-wave::after { content:""; position:absolute; top:0; bottom:0; left:0; width:1px; background:var(--acid); opacity:0; animation:scanWave .75s ease-out; }
+    @keyframes scanWave { 15% { opacity:.75; } 100% { left:100%; opacity:0; } }
+    .chamber-summary { display:flex; align-items:baseline; gap:16px; }
+    .summary-number { font-family:var(--display); font-size:34px; line-height:1; }
+    .summary-copy { color:var(--muted); font-size:10px; max-width:560px; }
+    .chamber-actions { display:flex; align-items:center; gap:10px; }
+
+    .action { appearance:none; border:1px solid var(--paper); background:var(--paper); color:var(--void); text-transform:uppercase; font-size:10px; letter-spacing:.12em; padding:10px 13px; cursor:pointer; }
+    .action.secondary { background:transparent; color:var(--paper); border-color:var(--line-strong); }
+    .action.danger { background:transparent; color:var(--danger); border-color:var(--danger); }
+    .action.warn { background:var(--hold); color:var(--void); border-color:var(--hold); }
+    .action:hover:not(:disabled),.action:focus-visible:not(:disabled) { background:var(--acid); border-color:var(--acid); color:var(--void); }
+    .action:disabled { opacity:.32; cursor:default; }
+
+    .hero-meta { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--line-strong); }
+    .meta-cell { padding:12px 14px 0 0; min-width:0; }
+    .meta-cell + .meta-cell { border-left:1px solid var(--line); padding-left:14px; }
+    .meta-value { margin-top:4px; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    .section { padding:88px 0; border-bottom:1px solid var(--line-strong); }
+    .section-head { display:grid; grid-template-columns:90px minmax(0,1fr) minmax(260px,380px); gap:32px; align-items:start; margin-bottom:38px; }
+    .section-title { font-family:var(--display); font-size:clamp(42px,5.2vw,78px); line-height:.9; letter-spacing:-.035em; text-transform:uppercase; }
+    .section-deck { color:var(--muted); font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:1.65; }
+    .system-grid { display:grid; grid-template-columns:1.05fr .95fr; border-top:1px solid var(--line-strong); }
+    .readout { border-right:1px solid var(--line-strong); }
+    .readout-row,.roster-row { min-height:52px; display:grid; align-items:center; border-bottom:1px solid var(--line); }
+    .readout-row { grid-template-columns:180px 1fr; }
+    .readout-key { color:var(--muted); text-transform:uppercase; font-size:10px; letter-spacing:.12em; }
+    .readout-value { overflow-wrap:anywhere; }
+    .readout-value.warn { color:var(--hold); }
+    .readout-value.good { color:var(--acid); }
+    .readout-value.bad { color:var(--danger); }
+    .policy-roster { padding-left:28px; }
+    .roster-row { grid-template-columns:44px 1fr 110px; }
+    .roster-wallet { color:var(--muted); font-size:11px; }
+    .roster-state { text-align:right; font-family:var(--display); font-size:16px; font-weight:800; }
+    .roster-state.allowed { color:var(--acid); }
+    .roster-state.blocked { color:var(--hold); }
+    .roster-state.unknown { color:var(--unknown); }
+
+    .execution-grid { display:grid; grid-template-columns:1fr 80px 1fr; border-top:1px solid var(--line-strong); }
+    .execution-state { padding:22px 0 0; }
+    .execution-state h3 { font-family:var(--display); font-size:30px; text-transform:uppercase; margin:8px 0 22px; }
+    .execution-line { min-height:46px; display:grid; grid-template-columns:50px 1fr auto; align-items:center; border-top:1px solid var(--line); }
+    .execution-line span:nth-child(2) { color:var(--muted); }
+    .state-paid { color:var(--acid); } .state-suspended { color:var(--hold); } .state-released { color:var(--release); }
+    .accounted { display:flex; align-items:baseline; justify-content:space-between; border-top:1px solid var(--line-strong); padding-top:16px; margin-top:12px; }
+    .accounted strong { font-family:var(--display); font-size:46px; }
+    .accounted span { text-transform:uppercase; color:var(--muted); font-size:10px; letter-spacing:.14em; }
+    .execution-arrow { display:grid; place-items:center; color:var(--muted); font-size:30px; }
+
+    .ledger { border-top:1px solid var(--line-strong); }
+    .ledger-row { min-height:72px; display:grid; grid-template-columns:110px 150px 1fr 120px; gap:18px; align-items:center; border-bottom:1px solid var(--line); }
+    .ledger-kind { font-family:var(--display); font-size:22px; text-transform:uppercase; }
+    .ledger-hash { color:var(--muted); font-size:10px; overflow-wrap:anywhere; }
+    .verified { color:var(--release); text-align:right; font-size:10px; text-transform:uppercase; letter-spacing:.1em; }
+    .archive-cta { margin-top:36px; display:grid; grid-template-columns:1fr auto; gap:24px; align-items:end; border-top:1px solid var(--line); padding-top:18px; }
+    .archive-cta p { max-width:720px; color:var(--muted); font-family:Arial,Helvetica,sans-serif; font-size:13px; }
+    .archive-link { text-transform:uppercase; text-decoration:none; letter-spacing:.12em; font-size:10px; border-bottom:1px solid var(--paper); padding-bottom:3px; }
+
+    .operator-shell { border-top:1px solid var(--line-strong); display:grid; grid-template-columns:.8fr 1.2fr; }
+    .operator-access { padding:28px 28px 34px 0; border-right:1px solid var(--line-strong); }
+    .operator-controls { padding:28px 0 34px 28px; }
+    .operator-title { font-family:var(--display); font-size:34px; text-transform:uppercase; line-height:.95; margin:8px 0 18px; }
+    .operator-copy { color:var(--muted); font-family:Arial,Helvetica,sans-serif; font-size:13px; line-height:1.6; max-width:560px; }
+    .field { margin-top:20px; }
+    .field label { display:block; text-transform:uppercase; font-size:9px; letter-spacing:.13em; color:var(--muted); margin-bottom:7px; }
+    .input { width:100%; border:1px solid var(--line-strong); background:transparent; color:var(--paper); padding:11px 12px; outline:none; border-radius:0; }
+    .input:focus { border-color:var(--acid); }
+    .inline-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .capability-grid { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--line); margin-top:24px; }
+    .capability { min-height:82px; padding:12px; border-right:1px solid var(--line); }
+    .capability:last-child { border-right:0; }
+    .capability-value { margin-top:7px; font-family:var(--display); font-size:21px; text-transform:uppercase; font-weight:800; }
+    .capability-value.good { color:var(--acid); } .capability-value.warn { color:var(--hold); } .capability-value.bad { color:var(--danger); }
+    .write-lanes { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line-strong); margin-top:24px; }
+    .write-lane { padding:18px 16px 0; border-right:1px solid var(--line); }
+    .write-lane:first-child { padding-left:0; }
+    .write-lane:last-child { border-right:0; }
+    .write-lane h3 { font-family:var(--display); font-size:24px; text-transform:uppercase; }
+    .write-lane p { color:var(--muted); font-family:Arial,Helvetica,sans-serif; font-size:12px; min-height:58px; margin-top:8px; }
+    .operation-log { margin-top:28px; border-top:1px solid var(--line-strong); }
+    .log-row { min-height:48px; display:grid; grid-template-columns:120px 1fr auto; gap:14px; align-items:center; border-bottom:1px solid var(--line); font-size:10px; }
+    .log-kind { color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+    .log-message { overflow-wrap:anywhere; }
+    .log-link { color:var(--release); text-decoration:none; text-transform:uppercase; letter-spacing:.08em; }
+    .operator-warning { margin-top:16px; padding:12px 0; border-top:1px solid var(--hold); border-bottom:1px solid var(--hold); color:var(--hold); font-size:10px; line-height:1.6; text-transform:uppercase; letter-spacing:.06em; }
+
+    .telemetry { min-height:56px; display:flex; gap:28px; align-items:center; flex-wrap:wrap; color:var(--muted); text-transform:uppercase; font-size:9px; letter-spacing:.11em; }
+    .telemetry strong { color:var(--paper); font-weight:500; }
+    .telemetry .health { margin-left:auto; color:var(--acid); }
+
+    @media (max-width:900px) {
+      :root { --gate:58%; }
+      .shell { width:min(100% - 28px,1480px); }
+      .masthead { grid-template-columns:1fr auto; }
+      .nav { display:none; }
+      .hero { min-height:auto; }
+      .hero-top,.section-head { grid-template-columns:1fr; gap:18px; }
+      .live-strip { grid-template-columns:repeat(2,1fr); }
+      .live-strip-cell:first-child { padding-left:14px; }
+      .system-grid,.execution-grid,.operator-shell { grid-template-columns:1fr; }
+      .readout,.operator-access { border-right:0; }
+      .operator-access { padding-right:0; }
+      .operator-controls { padding-left:0; border-top:1px solid var(--line-strong); }
+      .policy-roster { padding-left:0; margin-top:24px; }
+      .execution-arrow { min-height:70px; transform:rotate(90deg); }
+      .ledger-row { grid-template-columns:90px 120px 1fr; }
+      .verified { grid-column:3; text-align:left; padding-bottom:12px; }
+      .write-lanes { grid-template-columns:1fr; }
+      .write-lane { border-right:0; border-bottom:1px solid var(--line); padding:18px 0; }
     }
-
-    button, a { font: inherit; }
-    button { color: inherit; }
-    a { color: inherit; }
-
-    ::selection { background: var(--acid); color: var(--void); }
-
-    .shell {
-      width: min(1480px, calc(100% - 48px));
-      margin: 0 auto;
+    @media (max-width:620px) {
+      :root { --gate:53%; }
+      .masthead { min-height:66px; }
+      .live-lockup span:last-child { display:none; }
+      .hero { padding-top:32px; }
+      .hero-title { font-size:clamp(52px,18vw,92px); }
+      .live-strip { grid-template-columns:1fr 1fr; }
+      .live-strip-value { font-size:18px; }
+      .chamber { min-height:470px; }
+      .chamber-head,.chamber-foot { grid-template-columns:1fr; padding:12px 0; }
+      .phase-readout { text-align:left; }
+      .allocation-row { grid-template-columns:54px minmax(0,1fr) 86px; }
+      .allocation-state { font-size:14px; }
+      .chamber-summary { flex-direction:column; align-items:flex-start; gap:4px; }
+      .chamber-actions { width:100%; }
+      .chamber-actions .action { flex:1; }
+      .hero-meta,.capability-grid { grid-template-columns:1fr 1fr; }
+      .section { padding:60px 0; }
+      .section-title { font-size:44px; }
+      .readout-row { grid-template-columns:120px 1fr; gap:14px; }
+      .roster-row { grid-template-columns:34px 1fr 84px; }
+      .ledger-row { grid-template-columns:1fr; gap:6px; padding:14px 0; }
+      .verified { grid-column:auto; }
+      .archive-cta { grid-template-columns:1fr; }
+      .log-row { grid-template-columns:1fr; padding:10px 0; gap:4px; }
+      .telemetry .health { margin-left:0; }
     }
-
-    .masthead {
-      min-height: 82px;
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      border-bottom: 1px solid var(--line-strong);
-      position: relative;
-      z-index: 20;
-    }
-
-    .wordmark {
-      display: inline-flex;
-      align-items: stretch;
-      width: fit-content;
-      font-family: var(--display);
-      font-size: 24px;
-      font-weight: 900;
-      line-height: 1;
-      letter-spacing: .03em;
-    }
-
-    .wordmark-gate {
-      width: 2px;
-      min-height: 24px;
-      margin: -4px 3px;
-      background: var(--paper);
-      position: relative;
-    }
-
-    .wordmark-gate::after {
-      content: "";
-      position: absolute;
-      top: 50%; left: -3px;
-      width: 8px; height: 1px;
-      background: var(--paper);
-    }
-
-    .nav { display: flex; gap: 26px; align-items: center; }
-    .nav a {
-      text-decoration: none;
-      text-transform: uppercase;
-      font-size: 10px;
-      letter-spacing: .14em;
-      color: var(--muted);
-      transition: color 120ms ease;
-    }
-    .nav a:hover, .nav a:focus-visible { color: var(--paper); }
-
-    .live-lockup {
-      justify-self: end;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-transform: uppercase;
-      font-size: 10px;
-      letter-spacing: .12em;
-      color: var(--muted);
-    }
-
-    .live-dot {
-      width: 7px; height: 7px;
-      background: var(--acid);
-      box-shadow: 0 0 0 1px var(--acid);
-      animation: pulse 1.8s steps(2, end) infinite;
-    }
-
-    @keyframes pulse { 50% { opacity: .2; } }
-
-    .hero {
-      min-height: calc(100vh - 82px);
-      padding: 48px 0 34px;
-      display: grid;
-      grid-template-rows: auto auto 1fr auto;
-      gap: 24px;
-      border-bottom: 1px solid var(--line-strong);
-    }
-
-    .hero-top {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(260px, 390px);
-      gap: 48px;
-      align-items: end;
-    }
-
-    .eyebrow, .section-index, .micro-label {
-      text-transform: uppercase;
-      font-size: 10px;
-      letter-spacing: .15em;
-      color: var(--muted);
-    }
-
-    .hero-title {
-      margin-top: 12px;
-      max-width: 1080px;
-      font-family: var(--display);
-      font-size: clamp(58px, 8.8vw, 150px);
-      line-height: .82;
-      letter-spacing: -.055em;
-      text-transform: uppercase;
-      font-weight: 900;
-      text-wrap: balance;
-    }
-
-    .hero-title .line-2 { display: block; color: var(--muted); }
-
-    .hero-copy {
-      border-top: 1px solid var(--line-strong);
-      padding-top: 14px;
-      color: var(--muted);
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-    .hero-copy strong { color: var(--paper); font-weight: 600; }
-
-    .live-strip {
-      display: grid;
-      grid-template-columns: 1.2fr repeat(4, minmax(110px, .65fr));
-      border-top: 1px solid var(--line-strong);
-      border-bottom: 1px solid var(--line-strong);
-      min-height: 62px;
-    }
-
-    .live-strip-cell {
-      padding: 10px 14px;
-      border-right: 1px solid var(--line);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 4px;
-      min-width: 0;
-    }
-    .live-strip-cell:first-child { padding-left: 0; }
-    .live-strip-cell:last-child { border-right: 0; }
-
-    .live-strip-value {
-      font-family: var(--display);
-      font-size: 22px;
-      font-weight: 800;
-      text-transform: uppercase;
-      line-height: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .live-strip-value.acid { color: var(--acid); }
-    .live-strip-value.warn { color: var(--hold); }
-
-    .live-scan-cell { position: relative; overflow: hidden; }
-    .live-scan-cell::after {
-      content: "";
-      position: absolute;
-      left: 0; right: 0; bottom: 0;
-      height: 2px;
-      background: var(--acid);
-      transform-origin: left;
-      transform: scaleX(var(--refresh-progress, 0));
-      transition: transform 1s linear;
-    }
-
-    .chamber {
-      position: relative;
-      min-height: 410px;
-      border-top: 1px solid var(--line-strong);
-      border-bottom: 1px solid var(--line-strong);
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      overflow: hidden;
-    }
-
-    .chamber::before {
-      content: "";
-      position: absolute;
-      top: 0; bottom: 0;
-      left: var(--gate);
-      width: 1px;
-      background: var(--paper);
-      opacity: .55;
-      z-index: 2;
-    }
-
-    .chamber::after {
-      content: "POLICY GATE";
-      position: absolute;
-      top: 0; left: var(--gate);
-      transform: translate(-50%, -100%);
-      padding: 0 8px 7px;
-      background: var(--void);
-      color: var(--muted);
-      font-size: 9px;
-      letter-spacing: .14em;
-      white-space: nowrap;
-    }
-
-    .chamber.live-flash::before { animation: gateFlash .7s ease; }
-    @keyframes gateFlash {
-      0% { background: var(--paper); box-shadow: none; }
-      35% { background: var(--acid); box-shadow: 0 0 24px rgba(217,255,67,.35); opacity: 1; }
-      100% { background: var(--paper); box-shadow: none; opacity: .55; }
-    }
-
-    .chamber-head, .chamber-foot {
-      min-height: 52px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 20px;
-    }
-    .chamber-head { border-bottom: 1px solid var(--line); }
-    .chamber-foot { border-top: 1px solid var(--line); }
-
-    .chamber-mode { display: flex; align-items: baseline; gap: 10px; }
-    .chamber-mode strong {
-      font-family: var(--display);
-      font-size: 18px;
-      letter-spacing: .02em;
-      text-transform: uppercase;
-    }
-
-    .phase-readout {
-      text-align: right;
-      color: var(--muted);
-      font-size: 10px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
-
-    .allocation-list { display: grid; align-content: center; min-height: 294px; }
-
-    .allocation-row {
-      min-height: 56px;
-      display: grid;
-      grid-template-columns: 90px minmax(0, 1fr) 126px;
-      align-items: center;
-      border-bottom: 1px solid var(--line);
-      position: relative;
-    }
-    .allocation-row:last-child { border-bottom: 0; }
-
-    .holder-id { display: flex; gap: 12px; align-items: baseline; font-size: 11px; }
-    .holder-id strong { color: var(--paper); font-size: 14px; }
-    .holder-id span { color: var(--dim); }
-
-    .track {
-      height: 1px;
-      background: var(--line-strong);
-      position: relative;
-      margin-right: 22px;
-    }
-
-    .track::before {
-      content: "";
-      position: absolute;
-      top: -4px;
-      left: calc(var(--gate) - 90px);
-      width: 8px; height: 8px;
-      border: 1px solid var(--line-strong);
-      background: var(--void);
-      transform: translateX(-50%);
-      z-index: 3;
-    }
-
-    .runner {
-      position: absolute;
-      top: 50%; left: 0;
-      width: 10px; height: 10px;
-      transform: translate(0, -50%);
-      background: var(--unknown);
-      transition: left .65s cubic-bezier(.2,.8,.2,1), background .2s ease, box-shadow .2s ease;
-      z-index: 4;
-    }
-
-    .allocation-state {
-      text-align: right;
-      text-transform: uppercase;
-      font-family: var(--display);
-      font-size: 19px;
-      font-weight: 800;
-      letter-spacing: .03em;
-      color: var(--unknown);
-    }
-
-    .allocation-row[data-state="queued"] .runner { left: 3%; background: var(--dim); }
-    .allocation-row[data-state="scanning"] .runner,
-    .allocation-row[data-state="recheck"] .runner {
-      left: calc(var(--gate) - 94px);
-      background: var(--paper);
-      box-shadow: 0 0 18px rgba(236,234,226,.22);
-    }
-    .allocation-row[data-state="allowed"] .runner,
-    .allocation-row[data-state="paid"] .runner,
-    .allocation-row[data-state="released"] .runner { left: calc(100% - 10px); }
-    .allocation-row[data-state="blocked"] .runner,
-    .allocation-row[data-state="suspended"] .runner {
-      left: calc(var(--gate) - 94px);
-      background: var(--hold);
-      box-shadow: 0 0 20px rgba(255,176,0,.18);
-    }
-    .allocation-row[data-state="unknown"] .runner {
-      left: calc(var(--gate) - 94px);
-      background: var(--unknown);
-    }
-
-    .allocation-row[data-state="allowed"] .runner,
-    .allocation-row[data-state="paid"] .runner { background: var(--acid); }
-    .allocation-row[data-state="released"] .runner { background: var(--release); }
-
-    .allocation-row[data-state="allowed"] .allocation-state,
-    .allocation-row[data-state="paid"] .allocation-state { color: var(--acid); }
-    .allocation-row[data-state="blocked"] .allocation-state,
-    .allocation-row[data-state="suspended"] .allocation-state { color: var(--hold); }
-    .allocation-row[data-state="released"] .allocation-state { color: var(--release); }
-    .allocation-row[data-state="unknown"] .allocation-state { color: var(--unknown); }
-
-    .allocation-row.scan-wave::after {
-      content: "";
-      position: absolute;
-      top: 0; bottom: 0;
-      left: 0;
-      width: 1px;
-      background: var(--acid);
-      opacity: 0;
-      animation: scanWave .75s ease-out;
-    }
-
-    @keyframes scanWave {
-      0% { left: 0; opacity: 0; }
-      15% { opacity: .75; }
-      100% { left: 100%; opacity: 0; }
-    }
-
-    .chamber-summary { display: flex; align-items: baseline; gap: 16px; }
-    .summary-number {
-      font-family: var(--display);
-      font-size: 34px;
-      line-height: 1;
-      letter-spacing: -.02em;
-    }
-    .summary-copy { color: var(--muted); font-size: 10px; max-width: 520px; }
-
-    .chamber-actions { display: flex; align-items: center; gap: 10px; }
-    .action {
-      appearance: none;
-      border: 1px solid var(--paper);
-      background: var(--paper);
-      color: var(--void);
-      text-transform: uppercase;
-      font-size: 10px;
-      letter-spacing: .12em;
-      padding: 10px 13px;
-      cursor: pointer;
-    }
-    .action.secondary { background: transparent; color: var(--paper); border-color: var(--line-strong); }
-    .action:hover:not(:disabled), .action:focus-visible:not(:disabled) { background: var(--acid); border-color: var(--acid); color: var(--void); }
-    .action:disabled { opacity: .42; cursor: default; }
-
-    .hero-meta {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      border-top: 1px solid var(--line-strong);
-    }
-    .meta-cell { padding: 12px 14px 0 0; min-width: 0; }
-    .meta-cell + .meta-cell { border-left: 1px solid var(--line); padding-left: 14px; }
-    .meta-value {
-      margin-top: 4px;
-      font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .section { padding: 88px 0; border-bottom: 1px solid var(--line-strong); }
-    .section-head {
-      display: grid;
-      grid-template-columns: 90px minmax(0, 1fr) minmax(260px, 380px);
-      gap: 32px;
-      align-items: start;
-      margin-bottom: 38px;
-    }
-    .section-title {
-      font-family: var(--display);
-      font-size: clamp(42px, 5.2vw, 78px);
-      line-height: .9;
-      letter-spacing: -.035em;
-      text-transform: uppercase;
-    }
-    .section-deck { color: var(--muted); font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.65; }
-
-    .system-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 0; border-top: 1px solid var(--line-strong); }
-    .readout { border-right: 1px solid var(--line-strong); }
-    .readout-row, .roster-row {
-      min-height: 52px;
-      display: grid;
-      align-items: center;
-      border-bottom: 1px solid var(--line);
-    }
-    .readout-row { grid-template-columns: 180px 1fr; }
-    .readout-key { color: var(--muted); text-transform: uppercase; font-size: 10px; letter-spacing: .12em; }
-    .readout-value { overflow-wrap: anywhere; }
-    .readout-value.warn { color: var(--hold); }
-    .policy-roster { padding-left: 28px; }
-    .roster-row { grid-template-columns: 44px 1fr 110px; }
-    .roster-wallet { color: var(--muted); font-size: 11px; }
-    .roster-state { text-align: right; font-family: var(--display); font-size: 16px; font-weight: 800; }
-    .roster-state.allowed { color: var(--acid); }
-    .roster-state.blocked { color: var(--hold); }
-    .roster-state.unknown { color: var(--unknown); }
-
-    .execution-grid { display: grid; grid-template-columns: 1fr 80px 1fr; align-items: stretch; border-top: 1px solid var(--line-strong); }
-    .execution-state { padding: 22px 0 0; }
-    .execution-state h3 { font-family: var(--display); font-size: 30px; text-transform: uppercase; margin: 8px 0 22px; }
-    .execution-line { min-height: 46px; display: grid; grid-template-columns: 50px 1fr auto; align-items: center; border-top: 1px solid var(--line); }
-    .execution-line span:nth-child(2) { color: var(--muted); }
-    .state-paid { color: var(--acid); }
-    .state-suspended { color: var(--hold); }
-    .state-released { color: var(--release); }
-    .accounted { display: flex; align-items: baseline; justify-content: space-between; border-top: 1px solid var(--line-strong); padding-top: 16px; margin-top: 12px; }
-    .accounted strong { font-family: var(--display); font-size: 46px; }
-    .accounted span { text-transform: uppercase; color: var(--muted); font-size: 10px; letter-spacing: .14em; }
-    .execution-arrow { display: grid; place-items: center; color: var(--muted); font-size: 30px; }
-
-    .ledger { border-top: 1px solid var(--line-strong); }
-    .ledger-row { min-height: 72px; display: grid; grid-template-columns: 110px 150px 1fr 120px; gap: 18px; align-items: center; border-bottom: 1px solid var(--line); }
-    .ledger-kind { font-family: var(--display); font-size: 22px; text-transform: uppercase; }
-    .ledger-hash { color: var(--muted); font-size: 10px; overflow-wrap: anywhere; }
-    .verified { color: var(--release); text-align: right; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
-
-    .archive-cta { margin-top: 36px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; border-top: 1px solid var(--line); padding-top: 18px; }
-    .archive-cta p { max-width: 720px; color: var(--muted); font-family: Arial, Helvetica, sans-serif; font-size: 13px; }
-    .archive-link { text-transform: uppercase; text-decoration: none; letter-spacing: .12em; font-size: 10px; border-bottom: 1px solid var(--paper); padding-bottom: 3px; }
-
-    .telemetry {
-      min-height: 56px;
-      display: flex;
-      gap: 28px;
-      align-items: center;
-      flex-wrap: wrap;
-      color: var(--muted);
-      text-transform: uppercase;
-      font-size: 9px;
-      letter-spacing: .11em;
-    }
-    .telemetry strong { color: var(--paper); font-weight: 500; }
-    .telemetry .health { margin-left: auto; color: var(--acid); }
-
-    @media (max-width: 900px) {
-      :root { --gate: 58%; }
-      .shell { width: min(100% - 28px, 1480px); }
-      .masthead { grid-template-columns: 1fr auto; }
-      .nav { display: none; }
-      .hero { min-height: auto; }
-      .hero-top, .section-head { grid-template-columns: 1fr; gap: 18px; }
-      .hero-copy { max-width: 540px; }
-      .live-strip { grid-template-columns: repeat(2, 1fr); }
-      .live-strip-cell { border-bottom: 1px solid var(--line); }
-      .live-strip-cell:first-child { padding-left: 14px; }
-      .system-grid, .execution-grid { grid-template-columns: 1fr; }
-      .readout { border-right: 0; }
-      .policy-roster { padding-left: 0; margin-top: 24px; }
-      .execution-arrow { min-height: 70px; transform: rotate(90deg); }
-      .ledger-row { grid-template-columns: 90px 120px 1fr; }
-      .verified { grid-column: 3; text-align: left; padding-bottom: 12px; }
-      .hero-meta { grid-template-columns: 1fr 1fr; }
-      .meta-cell:nth-child(3) { border-left: 0; padding-left: 0; }
-    }
-
-    @media (max-width: 620px) {
-      :root { --gate: 53%; }
-      .masthead { min-height: 66px; }
-      .live-lockup span:last-child { display: none; }
-      .hero { padding-top: 32px; }
-      .hero-title { font-size: clamp(52px, 18vw, 92px); }
-      .live-strip { grid-template-columns: 1fr 1fr; }
-      .live-strip-value { font-size: 18px; }
-      .chamber { min-height: 470px; }
-      .chamber-head, .chamber-foot { grid-template-columns: 1fr; padding: 12px 0; }
-      .phase-readout { text-align: left; }
-      .allocation-row { grid-template-columns: 54px minmax(0,1fr) 86px; }
-      .track { margin-right: 10px; }
-      .allocation-state { font-size: 14px; }
-      .chamber-summary { align-items: flex-start; flex-direction: column; gap: 4px; }
-      .chamber-actions { width: 100%; }
-      .action { flex: 1; }
-      .hero-meta { grid-template-columns: 1fr; }
-      .meta-cell + .meta-cell { border-left: 0; border-top: 1px solid var(--line); padding: 10px 0 0; margin-top: 8px; }
-      .section { padding: 60px 0; }
-      .section-title { font-size: 44px; }
-      .readout-row { grid-template-columns: 120px 1fr; gap: 14px; }
-      .roster-row { grid-template-columns: 34px 1fr 84px; }
-      .ledger-row { grid-template-columns: 1fr; gap: 6px; padding: 14px 0; }
-      .verified { grid-column: auto; }
-      .archive-cta { grid-template-columns: 1fr; }
-      .telemetry .health { margin-left: 0; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
-    }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.001ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.001ms !important; } }
   </style>
 </head>
 <body>
   <div class="shell">
     <header class="masthead">
       <div class="wordmark" aria-label="Suspense"><span>SUSPEN</span><span class="wordmark-gate" aria-hidden="true"></span><span>SE</span></div>
-      <nav class="nav" aria-label="Primary">
-        <a href="#live">01 Live</a>
-        <a href="#execution">02 Execution</a>
-        <a href="#evidence">03 Evidence</a>
-      </nav>
-      <div class="live-lockup"><span class="live-dot" aria-hidden="true"></span><span id="mast-live">Live / Monad 10143</span></div>
+      <nav class="nav" aria-label="Primary"><a href="#live">01 Live</a><a href="#execution">02 Execution</a><a href="#evidence">03 Evidence</a><a href="#operator">04 Operator</a></nav>
+      <div class="live-lockup"><span class="live-dot"></span><span id="mast-live">Live / Monad 10143</span></div>
     </header>
 
     <main>
-      <section class="hero" id="live" aria-labelledby="hero-title">
+      <section class="hero" id="live">
         <div class="hero-top">
-          <div>
-            <div class="eyebrow">01 / Settlement infrastructure</div>
-            <h1 class="hero-title" id="hero-title">Pay what clears.<span class="line-2">Hold what doesn’t.</span></h1>
-          </div>
+          <div><div class="eyebrow">01 / Settlement infrastructure</div><h1 class="hero-title">Pay what clears.<span class="line-2">Hold what doesn’t.</span></h1></div>
           <p class="hero-copy">Suspense makes compliance visible. <strong>Eligible allocations move.</strong> Ineligible allocations remain accounted for until a fresh policy check clears the same allocation for release.</p>
         </div>
-
-        <div class="live-strip" aria-label="Live telemetry">
-          <div class="live-strip-cell live-scan-cell" id="live-scan-cell">
-            <span class="micro-label">Live policy field</span>
-            <span class="live-strip-value acid" id="live-field">Connecting</span>
-          </div>
-          <div class="live-strip-cell">
-            <span class="micro-label">Block</span>
-            <span class="live-strip-value" id="live-block">—</span>
-          </div>
-          <div class="live-strip-cell">
-            <span class="micro-label">Last check</span>
-            <span class="live-strip-value" id="live-age">—</span>
-          </div>
-          <div class="live-strip-cell">
-            <span class="micro-label">Unknown</span>
-            <span class="live-strip-value" id="live-unknown">—</span>
-          </div>
-          <div class="live-strip-cell">
-            <span class="micro-label">Next read</span>
-            <span class="live-strip-value" id="live-next">20s</span>
-          </div>
+        <div class="live-strip">
+          <div class="live-strip-cell live-scan-cell" id="live-scan-cell"><span class="micro-label">Live policy field</span><span class="live-strip-value acid" id="live-field">Connecting</span></div>
+          <div class="live-strip-cell"><span class="micro-label">Block</span><span class="live-strip-value" id="live-block">—</span></div>
+          <div class="live-strip-cell"><span class="micro-label">Last check</span><span class="live-strip-value" id="live-age">—</span></div>
+          <div class="live-strip-cell"><span class="micro-label">Unknown</span><span class="live-strip-value" id="live-unknown">—</span></div>
+          <div class="live-strip-cell"><span class="micro-label">Next read</span><span class="live-strip-value" id="live-next">20s</span></div>
         </div>
-
         <div class="chamber" id="chamber" aria-live="polite">
-          <div class="chamber-head">
-            <div class="chamber-mode"><span class="micro-label">Settlement chamber</span><strong id="chamber-mode">Live policy state</strong></div>
-            <div class="phase-readout" id="phase-readout">Waiting for live policy check</div>
+          <div class="chamber-head"><div class="chamber-mode"><span class="micro-label">Settlement chamber</span><strong id="chamber-mode">Live policy state</strong></div><div class="phase-readout" id="phase-readout">Waiting for live policy check</div></div>
+          <div class="allocation-list">
+            <div class="allocation-row" data-holder="1" data-state="queued"><div class="holder-id"><strong>01</strong><span>CA</span></div><div class="track"><span class="runner"></span></div><div class="allocation-state">Queued</div></div>
+            <div class="allocation-row" data-holder="2" data-state="queued"><div class="holder-id"><strong>02</strong><span>CA</span></div><div class="track"><span class="runner"></span></div><div class="allocation-state">Queued</div></div>
+            <div class="allocation-row" data-holder="3" data-state="queued"><div class="holder-id"><strong>03</strong><span>CA</span></div><div class="track"><span class="runner"></span></div><div class="allocation-state">Queued</div></div>
+            <div class="allocation-row" data-holder="4" data-state="queued"><div class="holder-id"><strong>04</strong><span>CA</span></div><div class="track"><span class="runner"></span></div><div class="allocation-state">Queued</div></div>
+            <div class="allocation-row" data-holder="5" data-state="queued"><div class="holder-id"><strong>05</strong><span>US</span></div><div class="track"><span class="runner"></span></div><div class="allocation-state">Queued</div></div>
           </div>
-
-          <div class="allocation-list" id="allocation-list">
-            <div class="allocation-row" data-holder="1" data-country="CA" data-state="queued"><div class="holder-id"><strong>01</strong><span>CA</span></div><div class="track"><span class="runner" aria-hidden="true"></span></div><div class="allocation-state">Queued</div></div>
-            <div class="allocation-row" data-holder="2" data-country="CA" data-state="queued"><div class="holder-id"><strong>02</strong><span>CA</span></div><div class="track"><span class="runner" aria-hidden="true"></span></div><div class="allocation-state">Queued</div></div>
-            <div class="allocation-row" data-holder="3" data-country="CA" data-state="queued"><div class="holder-id"><strong>03</strong><span>CA</span></div><div class="track"><span class="runner" aria-hidden="true"></span></div><div class="allocation-state">Queued</div></div>
-            <div class="allocation-row" data-holder="4" data-country="CA" data-state="queued"><div class="holder-id"><strong>04</strong><span>CA</span></div><div class="track"><span class="runner" aria-hidden="true"></span></div><div class="allocation-state">Queued</div></div>
-            <div class="allocation-row" data-holder="5" data-country="US" data-state="queued"><div class="holder-id"><strong>05</strong><span>US</span></div><div class="track"><span class="runner" aria-hidden="true"></span></div><div class="allocation-state">Queued</div></div>
-          </div>
-
-          <div class="chamber-foot">
-            <div class="chamber-summary"><strong class="summary-number" id="summary-number">— / 5</strong><span class="summary-copy" id="summary-copy">Current eligibility is live. Settlement lifecycle is shown only in verified replay.</span></div>
-            <div class="chamber-actions"><button class="action" id="replay-btn" type="button">Replay verified execution →</button><button class="action secondary" id="live-btn" type="button">Refresh live</button></div>
-          </div>
+          <div class="chamber-foot"><div class="chamber-summary"><strong class="summary-number" id="summary-number">— / 5</strong><span class="summary-copy" id="summary-copy">Current eligibility is live. Settlement lifecycle is shown only in verified replay.</span></div><div class="chamber-actions"><button class="action" id="replay-btn">Replay verified execution →</button><button class="action secondary" id="live-btn">Refresh live</button></div></div>
         </div>
-
-        <div class="hero-meta" aria-label="Runtime metadata">
-          <div class="meta-cell"><div class="micro-label">Asset</div><div class="meta-value" id="meta-asset">SPNS03</div></div>
-          <div class="meta-cell"><div class="micro-label">Vault</div><div class="meta-value" id="meta-vault">0x8a6E…F7C4</div></div>
-          <div class="meta-cell"><div class="micro-label">Policy</div><div class="meta-value" id="meta-policy">0x3648…12Dd</div></div>
-          <div class="meta-cell"><div class="micro-label">Reality class</div><div class="meta-value" id="meta-reality">LIVE_POLICY_CHECK</div></div>
-        </div>
+        <div class="hero-meta"><div class="meta-cell"><div class="micro-label">Asset</div><div class="meta-value" id="meta-asset">SPNS03</div></div><div class="meta-cell"><div class="micro-label">Vault</div><div class="meta-value" id="meta-vault">0x8a6E…F7C4</div></div><div class="meta-cell"><div class="micro-label">Policy</div><div class="meta-value" id="meta-policy">0x3648…12Dd</div></div><div class="meta-cell"><div class="micro-label">Reality class</div><div class="meta-value" id="meta-reality">LIVE_POLICY_CHECK</div></div></div>
       </section>
 
-      <section class="section" id="system" aria-labelledby="system-title">
-        <div class="section-head"><div class="section-index">01.1</div><h2 class="section-title" id="system-title">Live system readout</h2><p class="section-deck">A current-state view only. The values below are refreshed from the production read endpoints. “Allowed” means the policy currently permits transfer; it does not rewrite historical settlement states.</p></div>
-        <div class="system-grid">
-          <div class="readout" id="readout">
-            <div class="readout-row"><span class="readout-key">Network</span><span class="readout-value" id="r-network">Monad Testnet</span></div>
-            <div class="readout-row"><span class="readout-key">Chain</span><span class="readout-value" id="r-chain">10143</span></div>
-            <div class="readout-row"><span class="readout-key">Asset</span><span class="readout-value" id="r-asset">SPNS03</span></div>
-            <div class="readout-row"><span class="readout-key">Vault balance</span><span class="readout-value" id="r-balance">—</span></div>
-            <div class="readout-row"><span class="readout-key">Vault</span><span class="readout-value" id="r-vault">—</span></div>
-            <div class="readout-row"><span class="readout-key">Policy</span><span class="readout-value" id="r-policy">—</span></div>
-            <div class="readout-row"><span class="readout-key">Check amount</span><span class="readout-value" id="r-check-amount">—</span></div>
-            <div class="readout-row"><span class="readout-key">Block</span><span class="readout-value" id="r-block">—</span></div>
-            <div class="readout-row"><span class="readout-key">Write gate</span><span class="readout-value warn">Closed</span></div>
-          </div>
-          <div class="policy-roster" id="policy-roster">
-            <div class="roster-row"><span>01</span><span class="roster-wallet">0x7Af3…5dCf / CA</span><span class="roster-state unknown" data-roster="1">Checking</span></div>
-            <div class="roster-row"><span>02</span><span class="roster-wallet">0x067d…B85E / CA</span><span class="roster-state unknown" data-roster="2">Checking</span></div>
-            <div class="roster-row"><span>03</span><span class="roster-wallet">0xC222…2752 / CA</span><span class="roster-state unknown" data-roster="3">Checking</span></div>
-            <div class="roster-row"><span>04</span><span class="roster-wallet">0xc06F…69EC / CA</span><span class="roster-state unknown" data-roster="4">Checking</span></div>
-            <div class="roster-row"><span>05</span><span class="roster-wallet">0x4065…513f / US</span><span class="roster-state unknown" data-roster="5">Checking</span></div>
-          </div>
-        </div>
+      <section class="section" id="system">
+        <div class="section-head"><div class="section-index">01.1</div><h2 class="section-title">Live system readout</h2><p class="section-deck">Current chain and policy reality. “Allowed” means the policy permits transfer now; it does not rewrite verified settlement history.</p></div>
+        <div class="system-grid"><div class="readout"><div class="readout-row"><span class="readout-key">Network</span><span class="readout-value">Monad Testnet</span></div><div class="readout-row"><span class="readout-key">Chain</span><span class="readout-value" id="r-chain">10143</span></div><div class="readout-row"><span class="readout-key">Asset</span><span class="readout-value" id="r-asset">SPNS03</span></div><div class="readout-row"><span class="readout-key">Vault balance</span><span class="readout-value" id="r-balance">—</span></div><div class="readout-row"><span class="readout-key">Vault</span><span class="readout-value" id="r-vault">—</span></div><div class="readout-row"><span class="readout-key">Policy</span><span class="readout-value" id="r-policy">—</span></div><div class="readout-row"><span class="readout-key">Check amount</span><span class="readout-value" id="r-check-amount">—</span></div><div class="readout-row"><span class="readout-key">Block</span><span class="readout-value" id="r-block">—</span></div><div class="readout-row"><span class="readout-key">Operator lane</span><span class="readout-value warn" id="r-operator">Locked</span></div></div>
+        <div class="policy-roster"><div class="roster-row"><span>01</span><span class="roster-wallet">0x7Af3…5dCf / CA</span><span class="roster-state unknown" data-roster="1">Checking</span></div><div class="roster-row"><span>02</span><span class="roster-wallet">0x067d…B85E / CA</span><span class="roster-state unknown" data-roster="2">Checking</span></div><div class="roster-row"><span>03</span><span class="roster-wallet">0xC222…2752 / CA</span><span class="roster-state unknown" data-roster="3">Checking</span></div><div class="roster-row"><span>04</span><span class="roster-wallet">0xc06F…69EC / CA</span><span class="roster-state unknown" data-roster="4">Checking</span></div><div class="roster-row"><span>05</span><span class="roster-wallet">0x4065…513f / US</span><span class="roster-state unknown" data-roster="5">Checking</span></div></div></div>
       </section>
 
-      <section class="section" id="execution" aria-labelledby="execution-title">
-        <div class="section-head"><div class="section-index">02</div><h2 class="section-title" id="execution-title">Verified execution</h2><p class="section-deck">This is a replay of the fresh Level-3 execution already verified on Monad Testnet. It is presentation-only: the replay button submits no blockchain transaction and makes no Cleanverse mutation.</p></div>
-        <div class="execution-grid">
-          <article class="execution-state">
-            <div class="micro-label">T0 / After distribute</div><h3>One allocation held</h3>
-            <div class="execution-line"><span>01</span><span>Holder 1</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>02</span><span>Holder 2</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>03</span><span>Holder 3</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>04</span><span>Holder 4</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>05</span><span>Holder 5</span><span class="state-suspended">SUSPENDED</span></div>
-            <div class="accounted"><strong>5 / 5</strong><span>Accounted</span></div>
-          </article>
-          <div class="execution-arrow" aria-hidden="true">→</div>
-          <article class="execution-state">
-            <div class="micro-label">T1 / After fresh recheck</div><h3>The same allocation released</h3>
-            <div class="execution-line"><span>01</span><span>Holder 1</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>02</span><span>Holder 2</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>03</span><span>Holder 3</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>04</span><span>Holder 4</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>05</span><span>Holder 5</span><span class="state-released">RELEASED</span></div>
-            <div class="accounted"><strong>5 / 5</strong><span>Accounted</span></div>
-          </article>
-        </div>
+      <section class="section" id="execution">
+        <div class="section-head"><div class="section-index">02</div><h2 class="section-title">Verified execution</h2><p class="section-deck">Presentation-only replay of the fresh Level-3 execution already verified on Monad Testnet. It never broadcasts a transaction.</p></div>
+        <div class="execution-grid"><article class="execution-state"><div class="micro-label">T0 / After distribute</div><h3>One allocation held</h3><div class="execution-line"><span>01</span><span>Holder 1</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>02</span><span>Holder 2</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>03</span><span>Holder 3</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>04</span><span>Holder 4</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>05</span><span>Holder 5</span><span class="state-suspended">SUSPENDED</span></div><div class="accounted"><strong>5 / 5</strong><span>Accounted</span></div></article><div class="execution-arrow">→</div><article class="execution-state"><div class="micro-label">T1 / Fresh recheck</div><h3>Same allocation released</h3><div class="execution-line"><span>01</span><span>Holder 1</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>02</span><span>Holder 2</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>03</span><span>Holder 3</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>04</span><span>Holder 4</span><span class="state-paid">PAID</span></div><div class="execution-line"><span>05</span><span>Holder 5</span><span class="state-released">RELEASED</span></div><div class="accounted"><strong>5 / 5</strong><span>Accounted</span></div></article></div>
       </section>
 
-      <section class="section" id="evidence" aria-labelledby="evidence-title">
-        <div class="section-head"><div class="section-index">03</div><h2 class="section-title" id="evidence-title">Execution ledger</h2><p class="section-deck">The product story resolves to verifiable execution evidence. Historical SPNS01 material remains archived separately; the rows below are the fresh SPNS03 Level-3 lifecycle.</p></div>
-        <div class="ledger">
-          <div class="ledger-row"><span class="micro-label">52324194</span><strong class="ledger-kind">Mint</strong><span class="ledger-hash">0xfa522a34a7351976ffe1318b00b06451f9eceaa70a791a32647a2bbba8173314</span><span class="verified">✓ Verified</span></div>
-          <div class="ledger-row"><span class="micro-label">52324424</span><strong class="ledger-kind">Distribute</strong><span class="ledger-hash">0x1fbd3fb0cef2607ac8d4d4a7daffb82b2a8ef3d127a294ef25d643a1182f06d2</span><span class="verified">✓ Verified</span></div>
-          <div class="ledger-row"><span class="micro-label">52324821</span><strong class="ledger-kind">Release</strong><span class="ledger-hash">0x21ab0250fd0076a5036e3035f37b344acba0c91ef5234bfb51c77d40c7973f61</span><span class="verified">✓ Verified</span></div>
+      <section class="section" id="evidence">
+        <div class="section-head"><div class="section-index">03</div><h2 class="section-title">Execution ledger</h2><p class="section-deck">Fresh SPNS03 receipts remain distinct from the original SPNS01 evidence reconstruction.</p></div>
+        <div class="ledger"><div class="ledger-row"><span class="micro-label">52324194</span><strong class="ledger-kind">Mint</strong><span class="ledger-hash">0xfa522a34a7351976ffe1318b00b06451f9eceaa70a791a32647a2bbba8173314</span><span class="verified">✓ Verified</span></div><div class="ledger-row"><span class="micro-label">52324424</span><strong class="ledger-kind">Distribute</strong><span class="ledger-hash">0x1fbd3fb0cef2607ac8d4d4a7daffb82b2a8ef3d127a294ef25d643a1182f06d2</span><span class="verified">✓ Verified</span></div><div class="ledger-row"><span class="micro-label">52324821</span><strong class="ledger-kind">Release</strong><span class="ledger-hash">0x21ab0250fd0076a5036e3035f37b344acba0c91ef5234bfb51c77d40c7973f61</span><span class="verified">✓ Verified</span></div></div>
+        <div class="archive-cta"><p>The historical reconstruction now uses the same Settlement Chamber visual language while remaining explicitly historical.</p><a class="archive-link" href="/demo/" target="_blank" rel="noopener">Open historical chamber ↗</a></div>
+      </section>
+
+      <section class="section" id="operator">
+        <div class="section-head"><div class="section-index">04</div><h2 class="section-title">Operator write lane</h2><p class="section-deck">The public surface stays safe by default. An authenticated operator can dry-run, arm a 90-second write window, fund the runtime vault, distribute, or release. Every broadcast remains explicit and replay-protected.</p></div>
+        <div class="operator-shell">
+          <div class="operator-access">
+            <div class="micro-label">Access boundary</div><h3 class="operator-title">Read → Operator → Armed write</h3><p class="operator-copy">Your operator credential is submitted once to the server and immediately cleared from this form. The browser receives only HttpOnly cookies; no credential or signer key is stored in localStorage or exposed to JavaScript.</p>
+            <form id="auth-form" class="field"><label for="operator-secret">Operator credential</label><input class="input" id="operator-secret" type="password" autocomplete="current-password" placeholder="Server-issued operator credential" /><div class="inline-actions"><button class="action secondary" type="submit" id="auth-btn">Unlock operator</button><button class="action secondary" type="button" id="status-btn">Refresh capability</button></div></form>
+            <div class="field"><label for="arm-confirm">Write arming phrase</label><input class="input" id="arm-confirm" type="text" autocomplete="off" placeholder="ARM MONAD TESTNET WRITES" /><div class="inline-actions"><button class="action warn" type="button" id="arm-btn" disabled>Arm writes for 90s</button></div></div>
+            <div class="operator-warning">Arming does not broadcast. Each real action still requires a separate confirmation. Testnet writes consume gas and change on-chain state.</div>
+            <div class="capability-grid"><div class="capability"><div class="micro-label">Session</div><div class="capability-value warn" id="cap-session">Locked</div></div><div class="capability"><div class="micro-label">Write arm</div><div class="capability-value warn" id="cap-arm">Inactive</div></div><div class="capability"><div class="micro-label">Signer</div><div class="capability-value warn" id="cap-signer">Unknown</div></div><div class="capability"><div class="micro-label">Vault</div><div class="capability-value" id="cap-vault">—</div></div></div>
+          </div>
+          <div class="operator-controls">
+            <div class="micro-label">Transaction lanes</div><h3 class="operator-title">Simulate first. Broadcast second.</h3>
+            <div class="write-lanes">
+              <article class="write-lane"><h3>01 / Fund</h3><p>Mint only the SPNS03 shortfall required to bring the runtime vault to exactly 5 tokens.</p><div class="inline-actions"><button class="action secondary" id="fund-dry" disabled>Dry run</button><button class="action" id="fund-live" disabled>Fund vault</button></div></article>
+              <article class="write-lane"><h3>02 / Distribute</h3><p>Create five fresh allocation IDs and let the live Cleanverse policy decide PAID versus SUSPENDED.</p><div class="inline-actions"><button class="action secondary" id="distribute-dry" disabled>Dry run</button><button class="action" id="distribute-live" disabled>Distribute</button></div></article>
+              <article class="write-lane"><h3>03 / Release</h3><p>Release one real SUSPENDED allocation only after a fresh live policy check returns ALLOWED.</p><div class="field"><label for="release-id">Allocation ID</label><input class="input" id="release-id" type="text" autocomplete="off" placeholder="0x…" /></div><div class="inline-actions"><button class="action secondary" id="release-dry" disabled>Dry run</button><button class="action" id="release-live" disabled>Release</button></div></article>
+            </div>
+            <div class="operation-log" id="operation-log"><div class="log-row"><span class="log-kind">System</span><span class="log-message">Operator lane locked. Public live reads continue normally.</span><span></span></div></div>
+          </div>
         </div>
-        <div class="archive-cta"><p>The original evidence reconstruction is preserved as an archive. It is intentionally distinct from this live SPNS03 surface and remains useful for the complete historical proof trail.</p><a class="archive-link" href="/demo/" target="_blank" rel="noopener">Open evidence archive ↗</a></div>
       </section>
     </main>
 
-    <footer class="telemetry" aria-label="System telemetry"><span>Asset <strong id="t-asset">SPNS03</strong></span><span>Vault <strong id="t-vault">0x8a6E…F7C4</strong></span><span>Block <strong id="t-block">—</strong></span><span>Policy check <strong id="t-check">—</strong></span><span class="health">● Read-only runtime</span></footer>
+    <footer class="telemetry"><span>Asset <strong id="t-asset">SPNS03</strong></span><span>Vault <strong id="t-vault">0x8a6E…F7C4</strong></span><span>Block <strong id="t-block">—</strong></span><span>Policy check <strong id="t-check">—</strong></span><span class="health" id="runtime-health">● Live runtime / operator capable</span></footer>
   </div>
 
   <script>
-    const rows = [...document.querySelectorAll('.allocation-row')];
-    const replayBtn = document.getElementById('replay-btn');
-    const liveBtn = document.getElementById('live-btn');
-    const chamber = document.getElementById('chamber');
-    const refreshIntervalMs = 20000;
-    let liveEligibility = null;
-    let liveStatus = null;
-    let replaying = false;
-    let refreshing = false;
-    let lastReadAt = null;
-    let nextReadAt = Date.now() + refreshIntervalMs;
-    let previousBlock = null;
+    const rows=[...document.querySelectorAll('.allocation-row')];
+    const chamber=document.getElementById('chamber');
+    const replayBtn=document.getElementById('replay-btn');
+    const liveBtn=document.getElementById('live-btn');
+    const refreshIntervalMs=20000;
+    const explorer='https://testnet.monadscan.com/tx/';
+    let liveEligibility=null,liveStatus=null,replaying=false,refreshing=false,lastReadAt=null,nextReadAt=Date.now()+refreshIntervalMs,previousBlock=null;
+    let operatorAuthenticated=false,writeStatus=null;
+    const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+    const shortAddr=value=>value?`${value.slice(0,6)}…${value.slice(-4)}`:'—';
 
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-    const shortAddr = (value) => value ? `${value.slice(0, 6)}…${value.slice(-4)}` : '—';
+    function setRow(holder,state,label){const row=rows.find(item=>Number(item.dataset.holder)===Number(holder));if(!row)return;row.dataset.state=state;row.querySelector('.allocation-state').textContent=label;}
+    function pulseRow(holder){const row=rows.find(item=>Number(item.dataset.holder)===Number(holder));if(!row)return;row.classList.remove('scan-wave');void row.offsetWidth;row.classList.add('scan-wave');setTimeout(()=>row.classList.remove('scan-wave'),800);}
+    function gateFlash(){chamber.classList.remove('live-flash');void chamber.offsetWidth;chamber.classList.add('live-flash');setTimeout(()=>chamber.classList.remove('live-flash'),800);}
+    function setSummary(number,copy){document.getElementById('summary-number').textContent=number;document.getElementById('summary-copy').textContent=copy;}
+    function setMode(mode,phase){document.getElementById('chamber-mode').textContent=mode;document.getElementById('phase-readout').textContent=phase;}
+    function classifyLive(holder){if(holder.decision==='ALLOWED'||holder.eligible===true)return['allowed','ALLOWED'];if(holder.decision==='BLOCKED'||holder.eligible===false)return['blocked','BLOCKED'];return['unknown','UNKNOWN'];}
 
-    function setRow(holder, state, label) {
-      const row = rows.find(item => Number(item.dataset.holder) === Number(holder));
-      if (!row) return;
-      row.dataset.state = state;
-      row.querySelector('.allocation-state').textContent = label;
+    async function animateLivePolicy(){
+      if(!liveEligibility?.holders)return;
+      let allowed=0,blocked=0,unknown=0;
+      for(const holder of liveEligibility.holders){setRow(holder.holder,'scanning','SCANNING');pulseRow(holder.holder);await sleep(110);const[state,label]=classifyLive(holder);setRow(holder.holder,state,label);if(state==='allowed')allowed++;if(state==='blocked')blocked++;if(state==='unknown')unknown++;const roster=document.querySelector(`[data-roster="${holder.holder}"]`);if(roster){roster.textContent=label;roster.className=`roster-state ${state}`;}}
+      gateFlash();setMode('Live policy state',`Fresh canTransfer() / ${liveEligibility.isoTime?new Date(liveEligibility.isoTime).toLocaleTimeString():'now'}`);setSummary(`${allowed} / 5`,unknown?`${unknown} result${unknown===1?'':'s'} UNKNOWN. UNKNOWN is never treated as BLOCKED.`:blocked?`${allowed} ALLOWED · ${blocked} BLOCKED · live policy state only.`:'All five are currently eligible. This does not rewrite verified historical settlement states.');document.getElementById('meta-reality').textContent=liveEligibility.realityClass||'LIVE_POLICY_CHECK';document.getElementById('live-field').textContent=`${allowed} ALLOWED`;document.getElementById('live-field').className=`live-strip-value ${unknown||blocked?'warn':'acid'}`;document.getElementById('live-unknown').textContent=String(unknown);replayBtn.disabled=false;replayBtn.textContent='Replay verified execution →';
     }
 
-    function pulseRow(holder) {
-      const row = rows.find(item => Number(item.dataset.holder) === Number(holder));
-      if (!row) return;
-      row.classList.remove('scan-wave');
-      void row.offsetWidth;
-      row.classList.add('scan-wave');
-      window.setTimeout(() => row.classList.remove('scan-wave'), 800);
+    function renderSystem(){
+      if(liveStatus){const blockChanged=previousBlock!=null&&Number(liveStatus.blockNumber)!==Number(previousBlock);previousBlock=liveStatus.blockNumber;document.getElementById('r-chain').textContent=liveStatus.chainId??'—';document.getElementById('r-asset').textContent=liveStatus.tokenSymbol??'SPNS03';document.getElementById('r-balance').textContent=`${liveStatus.vaultBalance??'—'} ${liveStatus.tokenSymbol??'SPNS03'}`;document.getElementById('r-vault').textContent=liveStatus.vault??'—';document.getElementById('r-block').textContent=liveStatus.blockNumber??'—';document.getElementById('meta-asset').textContent=liveStatus.tokenSymbol??'SPNS03';document.getElementById('meta-vault').textContent=shortAddr(liveStatus.vault);document.getElementById('t-asset').textContent=liveStatus.tokenSymbol??'SPNS03';document.getElementById('t-vault').textContent=shortAddr(liveStatus.vault);document.getElementById('t-block').textContent=liveStatus.blockNumber??'—';document.getElementById('live-block').textContent=liveStatus.blockNumber??'—';if(blockChanged)gateFlash();}
+      if(liveEligibility){document.getElementById('r-policy').textContent=liveEligibility.policy??'—';document.getElementById('r-check-amount').textContent=liveEligibility.checkAmount?`${liveEligibility.checkAmount} raw`:'—';document.getElementById('meta-policy').textContent=shortAddr(liveEligibility.policy);document.getElementById('t-check').textContent=liveEligibility.isoTime?new Date(liveEligibility.isoTime).toLocaleTimeString():'—';}
     }
 
-    function gateFlash() {
-      chamber.classList.remove('live-flash');
-      void chamber.offsetWidth;
-      chamber.classList.add('live-flash');
-      window.setTimeout(() => chamber.classList.remove('live-flash'), 800);
+    async function refreshLive({manual=false}={}){
+      if(replaying||refreshing||document.hidden)return;refreshing=true;liveBtn.disabled=true;liveBtn.textContent='Checking…';setMode('Live policy state',manual?'Manual read / production endpoints':'Automatic read / production endpoints');rows.forEach((_,i)=>setRow(i+1,'queued','CHECKING'));
+      try{const[statusRes,eligibilityRes]=await Promise.all([fetch('/api/status',{cache:'no-store'}),fetch('/api/eligibility',{cache:'no-store'})]);const statusBody=await statusRes.json();const eligibilityBody=await eligibilityRes.json();if(!statusRes.ok)throw new Error(statusBody.error||'Live chain state unavailable');if(!eligibilityRes.ok)throw new Error(eligibilityBody.error||'Live policy state unavailable');liveStatus=statusBody;liveEligibility=eligibilityBody;lastReadAt=Date.now();nextReadAt=lastReadAt+refreshIntervalMs;renderSystem();await animateLivePolicy();}
+      catch(error){rows.forEach((_,i)=>setRow(i+1,'unknown','UNKNOWN'));setMode('Live policy state','Read unavailable');setSummary('— / 5','Live read failed. UNKNOWN is not equivalent to BLOCKED.');document.getElementById('meta-reality').textContent='LIVE_READ_UNAVAILABLE';document.getElementById('live-field').textContent='READ ERROR';document.getElementById('live-field').className='live-strip-value warn';document.getElementById('live-unknown').textContent='5';nextReadAt=Date.now()+refreshIntervalMs;}
+      finally{refreshing=false;liveBtn.disabled=false;liveBtn.textContent='Refresh live';}
     }
 
-    function setSummary(number, copy) {
-      document.getElementById('summary-number').textContent = number;
-      document.getElementById('summary-copy').textContent = copy;
+    async function replaySettlement(){
+      if(replaying||refreshing)return;replaying=true;replayBtn.disabled=true;liveBtn.disabled=true;document.getElementById('meta-reality').textContent='VERIFIED_EXECUTION_REPLAY';document.getElementById('live-field').textContent='REPLAY MODE';document.getElementById('live-field').className='live-strip-value';setMode('Verified execution','T0 / Initializing five allocations');setSummary('0 / 5','Presentation replay only. No transaction is being submitted.');rows.forEach((_,i)=>setRow(i+1,'queued','QUEUED'));await sleep(500);
+      for(let holder=1;holder<=5;holder++){setMode('Verified execution',`Policy scan / allocation 0${holder}`);setRow(holder,'recheck','SCANNING');pulseRow(holder);await sleep(330);setRow(holder,holder<5?'paid':'suspended',holder<5?'PAID':'SUSPENDED');await sleep(150);}
+      setMode('Verified execution','T0 / Distribution settled with one hold');setSummary('5 / 5','4 PAID + 1 SUSPENDED. Every allocation remains accounted for.');await sleep(1400);setMode('Verified execution','Fresh eligibility / allocation 05');setRow(5,'recheck','RECHECK');pulseRow(5);await sleep(900);setMode('Verified execution','T1 / Same allocation released');setRow(5,'released','RELEASED');gateFlash();setSummary('5 / 5','4 PAID + 1 RELEASED. Same allocation, newly eligible, still accounted for.');await sleep(450);replayBtn.disabled=false;replayBtn.textContent='Replay again →';liveBtn.disabled=false;liveBtn.textContent='Return to live';replaying=false;
     }
 
-    function setMode(mode, phase) {
-      document.getElementById('chamber-mode').textContent = mode;
-      document.getElementById('phase-readout').textContent = phase;
+    function updateClock(){const now=Date.now();const ageSeconds=lastReadAt?Math.max(0,Math.floor((now-lastReadAt)/1000)):null;const nextSeconds=Math.max(0,Math.ceil((nextReadAt-now)/1000));document.getElementById('live-age').textContent=ageSeconds==null?'—':`${ageSeconds}s`;document.getElementById('live-next').textContent=`${nextSeconds}s`;document.getElementById('live-scan-cell').style.setProperty('--refresh-progress',String(Math.min(1,Math.max(0,1-nextSeconds/(refreshIntervalMs/1000)))));if(!replaying&&!refreshing&&!document.hidden&&now>=nextReadAt)refreshLive();}
+
+    function addLog(kind,message,txHash=null){const log=document.getElementById('operation-log');const row=document.createElement('div');row.className='log-row';const kindEl=document.createElement('span');kindEl.className='log-kind';kindEl.textContent=kind;const msg=document.createElement('span');msg.className='log-message';msg.textContent=message;const end=document.createElement(txHash?'a':'span');if(txHash){end.className='log-link';end.href=`${explorer}${txHash}`;end.target='_blank';end.rel='noopener';end.textContent='Verify ↗';}row.append(kindEl,msg,end);log.prepend(row);}
+
+    async function jsonRequest(url,options={}){const response=await fetch(url,{credentials:'same-origin',cache:'no-store',...options,headers:{'Content-Type':'application/json',...(options.headers||{})}});let body={};try{body=await response.json();}catch{}return{response,body};}
+
+    function setCapability(id,text,state=''){const el=document.getElementById(id);el.textContent=text;el.className=`capability-value ${state}`;}
+    function renderWriteStatus(data){
+      writeStatus=data;operatorAuthenticated=true;setCapability('cap-session','Operator','good');setCapability('cap-arm',data.writeArm==='ACTIVE'?'Armed':'Inactive',data.writeArm==='ACTIVE'?'good':'warn');setCapability('cap-signer',data.signerState,data.signerState==='MATCH'?'good':'bad');setCapability('cap-vault',`${data.vaultBalance}/${data.requiredBalance}`,data.distributeReady?'good':'warn');document.getElementById('r-operator').textContent=data.writeArm==='ACTIVE'?'Armed':'Operator';document.getElementById('r-operator').className=`readout-value ${data.writeArm==='ACTIVE'?'good':'warn'}`;document.getElementById('arm-btn').disabled=false;document.getElementById('fund-dry').disabled=false;document.getElementById('distribute-dry').disabled=false;document.getElementById('release-dry').disabled=false;document.getElementById('fund-live').disabled=!data.fundReady;document.getElementById('distribute-live').disabled=!data.distributeReady;document.getElementById('release-live').disabled=!data.releaseReady;document.getElementById('runtime-health').textContent=data.writeArm==='ACTIVE'?'● Live runtime / writes armed':'● Live runtime / operator capable';if(data.blockers?.length)addLog('Capability',`Blockers: ${data.blockers.join(' · ')}`);
     }
+    function lockOperator(message='Operator lane locked.'){operatorAuthenticated=false;writeStatus=null;setCapability('cap-session','Locked','warn');setCapability('cap-arm','Inactive','warn');setCapability('cap-signer','Unknown','warn');setCapability('cap-vault','—','');document.getElementById('r-operator').textContent='Locked';document.getElementById('r-operator').className='readout-value warn';['arm-btn','fund-dry','fund-live','distribute-dry','distribute-live','release-dry','release-live'].forEach(id=>document.getElementById(id).disabled=true);if(message)addLog('Access',message);}
 
-    function classifyLive(holder) {
-      if (holder.decision === 'ALLOWED' || holder.eligible === true) return ['allowed', 'ALLOWED'];
-      if (holder.decision === 'BLOCKED' || holder.eligible === false) return ['blocked', 'BLOCKED'];
-      return ['unknown', 'UNKNOWN'];
-    }
+    async function refreshWriteStatus({silent=false}={}){try{const{response,body}=await jsonRequest('/api/write-status',{method:'GET',headers:{}});if(response.status===401){lockOperator(silent?'': 'Session expired or unavailable.');return false;}if(!response.ok){if(!silent)addLog('Capability',body.error||`HTTP ${response.status}`);return false;}renderWriteStatus(body);return true;}catch(error){if(!silent)addLog('Capability','Write status unavailable.');return false;}}
 
-    async function animateLivePolicy() {
-      if (!liveEligibility?.holders) return;
-      let allowed = 0;
-      let blocked = 0;
-      let unknown = 0;
+    document.getElementById('auth-form').addEventListener('submit',async event=>{event.preventDefault();const input=document.getElementById('operator-secret');const secret=input.value;if(!secret)return;const btn=document.getElementById('auth-btn');btn.disabled=true;btn.textContent='Authenticating…';try{const{response,body}=await jsonRequest('/api/auth',{method:'POST',body:JSON.stringify({secret})});if(!response.ok){addLog('Auth',body.error||`HTTP ${response.status}`);lockOperator('Authentication did not unlock the operator lane.');return;}addLog('Auth','Operator session active for up to 10 minutes.');await refreshWriteStatus();}catch{addLog('Auth','Authentication request failed.');}finally{input.value='';btn.disabled=false;btn.textContent='Unlock operator';}});
 
-      for (const holder of liveEligibility.holders) {
-        setRow(holder.holder, 'scanning', 'SCANNING');
-        pulseRow(holder.holder);
-        await sleep(110);
-        const [state, label] = classifyLive(holder);
-        setRow(holder.holder, state, label);
-        if (state === 'allowed') allowed++;
-        if (state === 'blocked') blocked++;
-        if (state === 'unknown') unknown++;
+    document.getElementById('status-btn').addEventListener('click',()=>refreshWriteStatus());
+    document.getElementById('arm-btn').addEventListener('click',async()=>{const input=document.getElementById('arm-confirm');const confirmText=input.value;if(confirmText!=='ARM MONAD TESTNET WRITES'){addLog('Arm','Exact phrase required: ARM MONAD TESTNET WRITES');return;}const{response,body}=await jsonRequest('/api/write-arm',{method:'POST',body:JSON.stringify({confirm:confirmText})});input.value='';if(!response.ok){addLog('Arm',body.error||`HTTP ${response.status}`);return;}addLog('Arm',`Write lane armed for ${body.armedForSeconds}s.`);await refreshWriteStatus();});
 
-        const roster = document.querySelector(`[data-roster="${holder.holder}"]`);
-        if (roster) {
-          roster.textContent = label;
-          roster.className = `roster-state ${state}`;
-        }
-      }
+    async function runAction(kind,{dryRun=false,allocationId=null}={}){const endpoint=kind==='fund'?'/api/fund':kind==='distribute'?'/api/distribute':'/api/release';if(!operatorAuthenticated){addLog(kind,'Operator session required.');return;}if(!dryRun){const detail=kind==='fund'?'mint the SPNS03 vault shortfall':kind==='distribute'?'broadcast five new allocation settlements':`release allocation ${shortAddr(allocationId)}`;if(!window.confirm(`Broadcast on Monad Testnet: ${detail}?`))return;}const operationId=crypto.randomUUID();const payload={operationId,dryRun};if(kind==='release')payload.allocationId=allocationId;addLog(kind,dryRun?`Dry run ${operationId}`:`Submitting ${operationId}`);const{response,body}=await jsonRequest(endpoint,{method:'POST',body:JSON.stringify(payload)});if(!response.ok){addLog(kind,body.error||`HTTP ${response.status}`);await refreshWriteStatus({silent:true});return;}if(dryRun){const detail=kind==='fund'?`Would mint ${body.mintAmount} ${body.symbol}.`:kind==='distribute'?`Would create ${body.allocationIds?.length||0} allocations.`:`Would release ${shortAddr(body.allocationId)}.`;addLog(`${kind} dry`,detail);return;}addLog(kind,body.txHash?'Confirmed on-chain.':'No transaction required.',body.txHash||null);if(kind==='distribute'&&body.allocationIds?.length){document.getElementById('release-id').value=body.allocationIds[4]||'';addLog('Allocation 05',body.allocationIds[4]||'Not returned');}await Promise.all([refreshWriteStatus({silent:true}),refreshLive({manual:true})]);}
 
-      gateFlash();
-      setMode('Live policy state', `Fresh canTransfer() / ${liveEligibility.isoTime ? new Date(liveEligibility.isoTime).toLocaleTimeString() : 'now'}`);
-      setSummary(`${allowed} / 5`, unknown ? `${unknown} result${unknown === 1 ? '' : 's'} UNKNOWN. UNKNOWN is never treated as BLOCKED.` : blocked ? `${allowed} ALLOWED · ${blocked} BLOCKED · live policy state only.` : 'All five are currently eligible. This does not rewrite verified historical settlement states.');
-      document.getElementById('meta-reality').textContent = liveEligibility.realityClass || 'LIVE_POLICY_CHECK';
-      document.getElementById('live-field').textContent = `${allowed} ALLOWED`;
-      document.getElementById('live-field').className = `live-strip-value ${unknown || blocked ? 'warn' : 'acid'}`;
-      document.getElementById('live-unknown').textContent = String(unknown);
-      replayBtn.disabled = false;
-      replayBtn.textContent = 'Replay verified execution →';
-    }
+    document.getElementById('fund-dry').addEventListener('click',()=>runAction('fund',{dryRun:true}));document.getElementById('fund-live').addEventListener('click',()=>runAction('fund'));
+    document.getElementById('distribute-dry').addEventListener('click',()=>runAction('distribute',{dryRun:true}));document.getElementById('distribute-live').addEventListener('click',()=>runAction('distribute'));
+    document.getElementById('release-dry').addEventListener('click',()=>{const allocationId=document.getElementById('release-id').value.trim();if(!/^0x[a-fA-F0-9]{64}$/.test(allocationId)){addLog('Release','A valid bytes32 allocation ID is required.');return;}runAction('release',{dryRun:true,allocationId});});document.getElementById('release-live').addEventListener('click',()=>{const allocationId=document.getElementById('release-id').value.trim();if(!/^0x[a-fA-F0-9]{64}$/.test(allocationId)){addLog('Release','A valid bytes32 allocation ID is required.');return;}runAction('release',{allocationId});});
 
-    function renderSystem() {
-      if (liveStatus) {
-        const blockChanged = previousBlock != null && Number(liveStatus.blockNumber) !== Number(previousBlock);
-        previousBlock = liveStatus.blockNumber;
-        document.getElementById('r-chain').textContent = liveStatus.chainId ?? '—';
-        document.getElementById('r-asset').textContent = liveStatus.tokenSymbol ?? 'SPNS03';
-        document.getElementById('r-balance').textContent = `${liveStatus.vaultBalance ?? '—'} ${liveStatus.tokenSymbol ?? 'SPNS03'}`;
-        document.getElementById('r-vault').textContent = liveStatus.vault ?? '—';
-        document.getElementById('r-block').textContent = liveStatus.blockNumber ?? '—';
-        document.getElementById('meta-asset').textContent = liveStatus.tokenSymbol ?? 'SPNS03';
-        document.getElementById('meta-vault').textContent = shortAddr(liveStatus.vault);
-        document.getElementById('t-asset').textContent = liveStatus.tokenSymbol ?? 'SPNS03';
-        document.getElementById('t-vault').textContent = shortAddr(liveStatus.vault);
-        document.getElementById('t-block').textContent = liveStatus.blockNumber ?? '—';
-        document.getElementById('live-block').textContent = liveStatus.blockNumber ?? '—';
-        if (blockChanged) gateFlash();
-      }
-
-      if (liveEligibility) {
-        document.getElementById('r-policy').textContent = liveEligibility.policy ?? '—';
-        document.getElementById('r-check-amount').textContent = liveEligibility.checkAmount ? `${liveEligibility.checkAmount} raw` : '—';
-        document.getElementById('meta-policy').textContent = shortAddr(liveEligibility.policy);
-        document.getElementById('t-check').textContent = liveEligibility.isoTime ? new Date(liveEligibility.isoTime).toLocaleTimeString() : '—';
-      }
-    }
-
-    async function refreshLive({ manual = false } = {}) {
-      if (replaying || refreshing || document.hidden) return;
-      refreshing = true;
-      liveBtn.disabled = true;
-      liveBtn.textContent = 'Checking…';
-      setMode('Live policy state', manual ? 'Manual read / production endpoints' : 'Automatic read / production endpoints');
-      rows.forEach((row, i) => setRow(i + 1, 'queued', 'CHECKING'));
-
-      try {
-        const [statusRes, eligibilityRes] = await Promise.all([
-          fetch('/api/status', { cache: 'no-store' }),
-          fetch('/api/eligibility', { cache: 'no-store' })
-        ]);
-
-        const statusBody = await statusRes.json();
-        const eligibilityBody = await eligibilityRes.json();
-        if (!statusRes.ok) throw new Error(statusBody.error || 'Live chain state unavailable');
-        if (!eligibilityRes.ok) throw new Error(eligibilityBody.error || 'Live policy state unavailable');
-
-        liveStatus = statusBody;
-        liveEligibility = eligibilityBody;
-        lastReadAt = Date.now();
-        nextReadAt = lastReadAt + refreshIntervalMs;
-        renderSystem();
-        await animateLivePolicy();
-      } catch (error) {
-        rows.forEach((row, i) => setRow(i + 1, 'unknown', 'UNKNOWN'));
-        setMode('Live policy state', 'Read unavailable');
-        setSummary('— / 5', 'Live read failed. UNKNOWN is not equivalent to BLOCKED.');
-        document.getElementById('meta-reality').textContent = 'LIVE_READ_UNAVAILABLE';
-        document.getElementById('live-field').textContent = 'READ ERROR';
-        document.getElementById('live-field').className = 'live-strip-value warn';
-        document.getElementById('live-unknown').textContent = '5';
-        nextReadAt = Date.now() + refreshIntervalMs;
-      } finally {
-        refreshing = false;
-        liveBtn.disabled = false;
-        liveBtn.textContent = 'Refresh live';
-      }
-    }
-
-    async function replaySettlement() {
-      if (replaying || refreshing) return;
-      replaying = true;
-      replayBtn.disabled = true;
-      liveBtn.disabled = true;
-      document.getElementById('meta-reality').textContent = 'VERIFIED_EXECUTION_REPLAY';
-      document.getElementById('live-field').textContent = 'REPLAY MODE';
-      document.getElementById('live-field').className = 'live-strip-value';
-      setMode('Verified execution', 'T0 / Initializing five allocations');
-      setSummary('0 / 5', 'Presentation replay only. No transaction is being submitted.');
-      rows.forEach((row, i) => setRow(i + 1, 'queued', 'QUEUED'));
-      await sleep(500);
-
-      for (let holder = 1; holder <= 5; holder++) {
-        setMode('Verified execution', `Policy scan / allocation 0${holder}`);
-        setRow(holder, 'recheck', 'SCANNING');
-        pulseRow(holder);
-        await sleep(330);
-        if (holder < 5) setRow(holder, 'paid', 'PAID');
-        else setRow(holder, 'suspended', 'SUSPENDED');
-        await sleep(150);
-      }
-
-      setMode('Verified execution', 'T0 / Distribution settled with one hold');
-      setSummary('5 / 5', '4 PAID + 1 SUSPENDED. Every allocation remains accounted for.');
-      await sleep(1400);
-      setMode('Verified execution', 'Fresh eligibility / allocation 05');
-      setRow(5, 'recheck', 'RECHECK');
-      pulseRow(5);
-      await sleep(900);
-      setMode('Verified execution', 'T1 / Same allocation released');
-      setRow(5, 'released', 'RELEASED');
-      gateFlash();
-      setSummary('5 / 5', '4 PAID + 1 RELEASED. Same allocation, newly eligible, still accounted for.');
-      await sleep(450);
-
-      replayBtn.disabled = false;
-      replayBtn.textContent = 'Replay again →';
-      liveBtn.disabled = false;
-      liveBtn.textContent = 'Return to live';
-      replaying = false;
-    }
-
-    function updateClock() {
-      const now = Date.now();
-      const ageSeconds = lastReadAt ? Math.max(0, Math.floor((now - lastReadAt) / 1000)) : null;
-      const nextSeconds = Math.max(0, Math.ceil((nextReadAt - now) / 1000));
-      document.getElementById('live-age').textContent = ageSeconds == null ? '—' : `${ageSeconds}s`;
-      document.getElementById('live-next').textContent = `${nextSeconds}s`;
-      document.getElementById('live-scan-cell').style.setProperty('--refresh-progress', String(Math.min(1, Math.max(0, 1 - nextSeconds / (refreshIntervalMs / 1000)))));
-
-      if (!replaying && !refreshing && !document.hidden && now >= nextReadAt) refreshLive();
-    }
-
-    replayBtn.addEventListener('click', replaySettlement);
-    liveBtn.addEventListener('click', () => refreshLive({ manual: true }));
-    document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && !replaying && Date.now() >= nextReadAt) refreshLive();
-    });
-
-    window.setInterval(updateClock, 1000);
-    refreshLive();
+    replayBtn.addEventListener('click',replaySettlement);liveBtn.addEventListener('click',()=>refreshLive({manual:true}));document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!replaying&&Date.now()>=nextReadAt)refreshLive();});setInterval(updateClock,1000);refreshLive();refreshWriteStatus({silent:true});
   </script>
 </body>
 </html>
