@@ -52,7 +52,6 @@ import { getContracts } from '../lib/rpc.js';
 import { getRuntimeVaultAddress } from '../lib/write-context.js';
 import {
   CHAIN_ID,
-  VAULT_ADDRESS,
   TOKEN_ADDRESS,
   REALITY,
   assertDecimalsMatch,

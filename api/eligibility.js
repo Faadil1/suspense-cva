@@ -17,8 +17,9 @@
  *
  * ── Amount used for canTransfer() ────────────────────────────────────────
  * The call mirrors SuspenseVault._policyAllows() exactly:
- *   policy.canTransfer(TOKEN_ADDRESS, VAULT_ADDRESS, holder, distributionAmount)
- * where distributionAmount = 1.0 SPNS03 = oneToken(liveDecimals).
+ *   policy.canTransfer(TOKEN_ADDRESS, runtimeVault, holder, distributionAmount)
+ * where runtimeVault = env SUSPENSE_RUNTIME_VAULT_ADDRESS (0x8a6E…F7C4)
+ * and distributionAmount = 1.0 SPNS03 = oneToken(liveDecimals).
  * Canonical: oneToken(6) = 1_000_000n
  *
  * token.decimals() is read fresh each request and validated against
@@ -83,7 +84,6 @@ import { getContracts } from '../lib/rpc.js';
 import { getRuntimeVaultAddress } from '../lib/write-context.js';
 import {
   CHAIN_ID,
-  VAULT_ADDRESS,
   TOKEN_ADDRESS,
   POLICY_ADDRESS,
   DEMO_COHORT,
