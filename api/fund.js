@@ -39,50 +39,38 @@ export default async function handler(req, res) {
 
     if (ctx.dryRun) {
       return res.status(200).json({
-        ok: true,
-        dryRun: true,
-        chainId: ctx.chainId,
-        symbol,
-        runtimeVault: ctx.runtimeVault,
-        signer: EXPECTED_DISTRIBUTE_SIGNER,
-        vaultBalanceRaw: beforeRaw.toString(),
-        vaultBalance: formatUnits(beforeRaw, decimals),
-        requiredRaw: requiredRaw.toString(),
-        required: formatUnits(requiredRaw, decimals),
-        mintRaw: mintRaw.toString(),
-        mintAmount: formatUnits(mintRaw, decimals),
-        writeGateMode: ctx.writeGateMode,
-        noSigning: true,
-        noBroadcast: true,
+        ok: true, dryRun: true, chainId: ctx.chainId, symbol,
+        runtimeVault: ctx.runtimeVault, signer: EXPECTED_DISTRIBUTE_SIGNER,
+        vaultBalanceRaw: beforeRaw.toString(), vaultBalance: formatUnits(beforeRaw, decimals),
+        requiredRaw: requiredRaw.toString(), required: formatUnits(requiredRaw, decimals),
+        mintRaw: mintRaw.toString(), mintAmount: formatUnits(mintRaw, decimals),
+        writeGateMode: ctx.writeGateMode, noSigning: true, noBroadcast: true,
       });
     }
 
     if (mintRaw === 0n) {
       await ctx.updateOperationStateFn(ctx.operationScope, ctx.operationId, OpState.CONFIRMED);
       return res.status(200).json({
-        ok: true,
-        alreadyFunded: true,
-        symbol,
-        runtimeVault: ctx.runtimeVault,
-        vaultBalanceRaw: beforeRaw.toString(),
-        txHash: null,
+        ok: true, alreadyFunded: true, symbol, runtimeVault: ctx.runtimeVault,
+        vaultBalanceRaw: beforeRaw.toString(), txHash: null,
         zeroBlockchainTransactions: true,
       });
     }
 
     const signerSecret = process.env.SUSPENSE_DEMO_SIGNER_PRIVATE_KEY;
-    if (!signerSecret) return error(res, 503, 'SIGNER_NOT_CONFIGURED');
+    if (!signerSecret) {
+      await ctx.updateOperationStateFn(ctx.operationScope, ctx.operationId, OpState.FAILED);
+      return error(res, 503, 'SIGNER_NOT_CONFIGURED');
+    }
 
     const wallet = new Wallet(signerSecret, ctx.vault.runner.provider);
     const signer = await wallet.getAddress();
     if (signer.toLowerCase() !== EXPECTED_DISTRIBUTE_SIGNER.toLowerCase()) {
+      await ctx.updateOperationStateFn(ctx.operationScope, ctx.operationId, OpState.FAILED);
       return error(res, 503, 'SIGNER_MISMATCH');
     }
 
     const token = new Contract(TOKEN_ADDRESS, ERC20_ABI, wallet);
-
-    // The same mint(address,uint256) path was used by the verified SPNS03 replay.
-    // staticCall first guarantees role/signature validity before broadcast.
     await token.mint.staticCall(ctx.runtimeVault, mintRaw);
 
     await ctx.updateOperationStateFn(ctx.operationScope, ctx.operationId, OpState.SUBMITTED);
@@ -92,22 +80,17 @@ export default async function handler(req, res) {
 
     const afterRaw = await ctx.token.balanceOf(ctx.runtimeVault);
     return res.status(200).json({
-      ok: true,
-      chainId: ctx.chainId,
-      symbol,
-      signer: EXPECTED_DISTRIBUTE_SIGNER,
-      runtimeVault: ctx.runtimeVault,
-      mintedRaw: mintRaw.toString(),
-      minted: formatUnits(mintRaw, decimals),
-      vaultBalanceBeforeRaw: beforeRaw.toString(),
-      vaultBalanceAfterRaw: afterRaw.toString(),
-      writeGateMode: ctx.writeGateMode,
-      txHash: receipt.hash,
-      blockNumber: receipt.blockNumber,
-      zeroBlockchainTransactions: false,
+      ok: true, chainId: ctx.chainId, symbol,
+      signer: EXPECTED_DISTRIBUTE_SIGNER, runtimeVault: ctx.runtimeVault,
+      mintedRaw: mintRaw.toString(), minted: formatUnits(mintRaw, decimals),
+      vaultBalanceBeforeRaw: beforeRaw.toString(), vaultBalanceAfterRaw: afterRaw.toString(),
+      writeGateMode: ctx.writeGateMode, txHash: receipt.hash,
+      blockNumber: receipt.blockNumber, zeroBlockchainTransactions: false,
     });
   } catch {
-    await ctx.updateOperationStateFn(ctx.operationScope, ctx.operationId, OpState.FAILED);
+    if (!ctx.dryRun) {
+      await ctx.updateOperationStateFn(ctx.operationScope, ctx.operationId, OpState.FAILED);
+    }
     return error(res, 503, 'FUND_FAILED');
   }
 }
