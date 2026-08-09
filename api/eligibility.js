@@ -79,7 +79,8 @@
  *   - Raw error messages and provider internals never logged or returned.
  */
 
-import { getContracts } from './lib/rpc.js';
+import { getContracts } from '../lib/rpc.js';
+import { getRuntimeVaultAddress } from '../lib/write-context.js';
 import {
   CHAIN_ID,
   VAULT_ADDRESS,
@@ -90,7 +91,7 @@ import {
   REALITY,
   assertDecimalsMatch,
   oneToken,
-} from './lib/constants.js';
+} from '../lib/constants.js';
 
 // ── Error code classification ──────────────────────────────────────────────
 //
@@ -156,6 +157,14 @@ export default async function handler(req, res) {
 
   try {
     const { token, policy } = await getContracts();
+    const runtimeVault = getRuntimeVaultAddress();
+    if (!runtimeVault) {
+      return res.status(503).json({
+        realityClass: REALITY.LIVE_POLICY_CHECK,
+        error: 'RUNTIME_VAULT_NOT_CONFIGURED',
+        detail: 'SUSPENSE_RUNTIME_VAULT_ADDRESS must be configured for live runtime state.',
+      });
+    }
 
     // Read token decimals at request time; fail-closed if unexpected.
     const liveDecimals = Number(await token.decimals());
@@ -171,7 +180,7 @@ export default async function handler(req, res) {
         try {
           const result = await policy.canTransfer(
             TOKEN_ADDRESS,   // token
-            VAULT_ADDRESS,   // from (vault is the distributor)
+            runtimeVault,    // from (vault is the distributor)
             member.address,  // to (recipient/holder)
             checkAmount      // amount (1.0 SPNS01 = 1_000_000n at 6 decimals)
           );
@@ -220,7 +229,7 @@ export default async function handler(req, res) {
       isoTime: new Date().toISOString(),
       policy: POLICY_ADDRESS,
       token:  TOKEN_ADDRESS,
-      vault:  VAULT_ADDRESS,
+      vault:  runtimeVault,
       tokenDecimals: liveDecimals,
       checkAmount: checkAmount.toString(),
       holders: results,

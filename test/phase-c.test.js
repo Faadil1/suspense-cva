@@ -32,16 +32,16 @@ import {
   extractSessionCookie,
   validateSecretConfig,
   SESSION_MAX_AGE,
-} from '../api/lib/auth.js';
+} from '../lib/auth.js';
 
-import { validateTimestamp } from '../api/lib/timestamp.js';
-import { validateOrigin }    from '../api/lib/origin.js';
+import { validateTimestamp } from '../lib/timestamp.js';
+import { validateOrigin }    from '../lib/origin.js';
 import {
   assertPolicyKnown,
   isPolicyAllowed,
   isPolicyGuardFailure,
-} from '../api/lib/policy-guard.js';
-import { isValidUuidV4 } from '../api/lib/replay.js';
+} from '../lib/policy-guard.js';
+import { isValidUuidV4 } from '../lib/replay.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. Session token: correct secret produces valid signed session [PASS]
@@ -353,7 +353,7 @@ describe('ratelimit / replay — Redis not configured → fail-closed', () => {
     // Dynamic import to get a fresh module with no cached Redis client.
     // Node's module cache will return the cached module here — this test
     // verifies the NOT_CONFIGURED code path exists; live retry is PENDING_LIVE_INTEGRATION.
-    const { checkRateLimit } = await import('../api/lib/ratelimit.js');
+    const { checkRateLimit } = await import('../lib/ratelimit.js');
     const result = await checkRateLimit('127.0.0.1', 'auth');
 
     // Restore
@@ -374,7 +374,7 @@ describe('ratelimit / replay — Redis not configured → fail-closed', () => {
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
 
-    const { reserveOperationId } = await import('../api/lib/replay.js');
+    const { reserveOperationId } = await import('../lib/replay.js');
     const result = await reserveOperationId('distribute', 'f47ac10b-58cc-4372-a567-0e02b2c3d479');
 
     if (savedUrl)   process.env.UPSTASH_REDIS_REST_URL   = savedUrl;
@@ -502,7 +502,7 @@ describe('replay — updateOperationState XX+KEEPTTL structural check [PASS]', (
 
   test('updateOperationState source uses xx: true', async () => {
     const { readFileSync } = await import('node:fs');
-    const src = readFileSync(new URL('../api/lib/replay.js', import.meta.url), 'utf8');
+    const src = readFileSync(new URL('../lib/replay.js', import.meta.url), 'utf8');
     assert.ok(
       src.includes('xx: true'),
       'updateOperationState must use xx: true to prevent expired/missing key recreation'
@@ -511,7 +511,7 @@ describe('replay — updateOperationState XX+KEEPTTL structural check [PASS]', (
 
   test('updateOperationState source uses keepTtl: true', async () => {
     const { readFileSync } = await import('node:fs');
-    const src = readFileSync(new URL('../api/lib/replay.js', import.meta.url), 'utf8');
+    const src = readFileSync(new URL('../lib/replay.js', import.meta.url), 'utf8');
     assert.ok(
       src.includes('keepTtl: true'),
       'updateOperationState must use keepTtl: true to preserve original TTL'
@@ -520,7 +520,7 @@ describe('replay — updateOperationState XX+KEEPTTL structural check [PASS]', (
 
   test('xx and keepTtl co-located in same options object', async () => {
     const { readFileSync } = await import('node:fs');
-    const src = readFileSync(new URL('../api/lib/replay.js', import.meta.url), 'utf8');
+    const src = readFileSync(new URL('../lib/replay.js', import.meta.url), 'utf8');
     // Find the options object that contains both flags — must be in updateOperationState,
     // not in reserveOperationId (which uses nx: true, ex: ...).
     const xxIdx      = src.lastIndexOf('xx: true');
@@ -537,7 +537,7 @@ describe('replay — updateOperationState XX+KEEPTTL structural check [PASS]', (
 
   test('reserveOperationId still uses nx: true and ex (atomic NX reservation unchanged)', async () => {
     const { readFileSync } = await import('node:fs');
-    const src = readFileSync(new URL('../api/lib/replay.js', import.meta.url), 'utf8');
+    const src = readFileSync(new URL('../lib/replay.js', import.meta.url), 'utf8');
     assert.ok(src.includes('nx: true'), 'reserveOperationId must retain nx: true');
     assert.ok(
       src.includes(`ex: REPLAY_TTL`) || src.includes('ex: 600'),
@@ -547,7 +547,7 @@ describe('replay — updateOperationState XX+KEEPTTL structural check [PASS]', (
 
   test('STATE_UPDATE_MISSING logged when XX returns null', async () => {
     const { readFileSync } = await import('node:fs');
-    const src = readFileSync(new URL('../api/lib/replay.js', import.meta.url), 'utf8');
+    const src = readFileSync(new URL('../lib/replay.js', import.meta.url), 'utf8');
     assert.ok(
       src.includes('STATE_UPDATE_MISSING'),
       'null result from XX update must log STATE_UPDATE_MISSING (no key recreation)'

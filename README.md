@@ -34,3 +34,11 @@ After a fresh Cleanverse eligibility check succeeds, the same allocation is `REL
 Cleanverse integration spike and live sandbox validation.
 
 See [`SPIKE-CHECKLIST.md`](./SPIKE-CHECKLIST.md) for the current gates.
+
+## Verified Evidence
+
+- The production host is a real Monad Testnet deployment.
+- The historical Gate E to Gate F lifecycle remains a reconstruction of verified receipts, kept distinct from the new runtime vault.
+- The Level-3 runtime vault was deployed and verified separately at the new production address.
+- Fresh distribution and release replay is limited because the signer lacks canonical SPNS01 mint authority or token inventory and the new runtime vault has not yet been provisioned with the required Cleanverse eligibility state.
+- Evidence package: [`docs/evidence/level3/LEVEL3-EVIDENCE.md`](./docs/evidence/level3/LEVEL3-EVIDENCE.md)

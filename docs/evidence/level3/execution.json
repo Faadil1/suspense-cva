@@ -1,0 +1,26 @@
+{
+  "classification": {
+    "LEVEL3_RUNTIME_INFRASTRUCTURE": "PASS",
+    "LEVEL3_FRESH_BUSINESS_REPLAY": "ACCEPT_WITH_LIMITATIONS",
+    "HISTORICAL_BUSINESS_EVIDENCE": "PASS"
+  },
+  "production": {
+    "url": "https://suspense-cva-level3.vercel.app",
+    "runtimeVault": "0x859Ce6E8B6BD0b5426DdA05e16c7BdF1eDD7c4e9",
+    "deploymentTx": "0xa0c098bcb95b0859fd31561de3d35fd04d1e859316b1772ce4075614704a885b",
+    "deploymentBlock": 52304049,
+    "chainId": 10143,
+    "owner": "0xE60435c0FBe928f3F8ed367Eafb65D955FCF5c06",
+    "token": "0xA17EaB812000679FE3C87a0C4a29Cf8A0714A7bD",
+    "policy": "0x36489bE45fa84f70a0c2BDB11D824Be608CB12Dd",
+    "deploymentArm": "CLOSED",
+    "appWriteGate": "CLOSED"
+  },
+  "historical": {
+    "distributionResult": "4 PAID + 1 SUSPENDED = 5/5",
+    "releaseResult": "4 PAID + 1 RELEASED = 5/5",
+    "suspendedAllocationId": "historical canonical evidence only",
+    "duplicateProtection": "historical canonical evidence only"
+  },
+  "limitation": "The newly deployed runtime vault was successfully deployed and verified, but the fresh distribution/release replay was not executed because the dedicated Level-3 signer does not possess canonical SPNS01 mint authority or token inventory and the new runtime vault has not yet been provisioned with the required Cleanverse eligibility state."
+}

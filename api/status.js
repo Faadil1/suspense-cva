@@ -48,14 +48,15 @@
  */
 
 import { formatUnits } from 'ethers';
-import { getContracts } from './lib/rpc.js';
+import { getContracts } from '../lib/rpc.js';
+import { getRuntimeVaultAddress } from '../lib/write-context.js';
 import {
   CHAIN_ID,
   VAULT_ADDRESS,
   TOKEN_ADDRESS,
   REALITY,
   assertDecimalsMatch,
-} from './lib/constants.js';
+} from '../lib/constants.js';
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
@@ -67,6 +68,14 @@ export default async function handler(req, res) {
 
   try {
     const { provider, token } = await getContracts();
+    const runtimeVault = getRuntimeVaultAddress();
+    if (!runtimeVault) {
+      return res.status(503).json({
+        realityClass: REALITY.LIVE_CHAIN_STATE,
+        error: 'RUNTIME_VAULT_NOT_CONFIGURED',
+        detail: 'SUSPENSE_RUNTIME_VAULT_ADDRESS must be configured for live runtime state.',
+      });
+    }
 
     // Parallel reads — pure eth_call, no state mutation
     const [
@@ -75,7 +84,7 @@ export default async function handler(req, res) {
       liveDecimalsRaw,
       blockNumber,
     ] = await Promise.all([
-      token.balanceOf(VAULT_ADDRESS),
+      token.balanceOf(runtimeVault),
       token.symbol(),
       token.decimals(),
       provider.getBlockNumber(),
@@ -97,7 +106,7 @@ export default async function handler(req, res) {
       blockNumber,
       timestamp: blockTimestamp,
       isoTime: new Date().toISOString(),
-      vault: VAULT_ADDRESS,
+      vault: runtimeVault,
       token: TOKEN_ADDRESS,
       vaultBalance,
       vaultBalanceRaw: vaultBalanceRaw.toString(),

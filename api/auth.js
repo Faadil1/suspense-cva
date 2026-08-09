@@ -39,9 +39,9 @@ import {
   timingSafeStringEqual,
   validateSecretConfig,
   SESSION_MAX_AGE,
-} from './lib/auth.js';
-import { checkRateLimit }  from './lib/ratelimit.js';
-import { validateOrigin }  from './lib/origin.js';
+} from '../lib/auth.js';
+import { checkRateLimit }  from '../lib/ratelimit.js';
+import { validateOrigin }  from '../lib/origin.js';
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
