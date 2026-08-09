@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suspense CVA — Evidence Reconstruction</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #0a0a0f;
+      --surface:      #12121a;
+      --surface2:     #1a1a26;
+      --border:       #2a2a3a;
+      --accent:       #6b4fff;
+      --accent-light: #8b6fff;
+      --green:        #22c55e;
+      --red:          #ef4444;
+      --amber:        #f59e0b;
+      --text:         #e2e2f0;
+      --text-muted:   #8080a0;
+      --text-dim:     #505070;
+      --mono:         'SF Mono', 'Consolas', 'Courier New', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────────── */
+    .app {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    /* ── Header ───────────────────────────────────────────────────── */
+    .header {
+      margin-bottom: 24px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .brand-name {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Mode toggle ──────────────────────────────────────────────── */
+    .mode-bar {
+      display: flex;
+      gap: 2px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+      width: fit-content;
+    }
+
+    .mode-btn {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .mode-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(107, 79, 255, 0.4);
+    }
+
+    .mode-btn:not(.active):hover {
+      color: var(--text);
+      background: var(--surface2);
+    }
+
+    /* ── Reality banner ───────────────────────────────────────────── */
+    .reality-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .reality-banner.live {
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      color: var(--green);
+    }
+
+    .reality-banner.historical {
+      background: rgba(107, 79, 255, 0.08);
+      border: 1px solid rgba(107, 79, 255, 0.25);
+      color: var(--accent-light);
+    }
+
+    .banner-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    .banner-dot.pulse {
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* ── Cards ────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    /* ── Stat grid ────────────────────────────────────────────────── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .stat-value.highlight { color: var(--accent-light); }
+    .stat-value.green    { color: var(--green); }
+    .stat-value.amber    { color: var(--amber); }
+
+    .stat-sub {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 3px;
+      font-family: var(--mono);
+    }
+
+    /* ── Eligibility table ────────────────────────────────────────── */
+    .holder-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .holder-table th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 0 12px 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .holder-table td {
+      padding: 12px 12px 12px 0;
+      border-bottom: 1px solid rgba(42, 42, 58, 0.5);
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    .holder-table tr:last-child td { border-bottom: none; }
+
+    .holder-table td.mono {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .badge.eligible {
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .badge.ineligible {
+      background: rgba(239, 68, 68, 0.10);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .badge.unknown {
+      background: rgba(128, 128, 160, 0.10);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    /* ── Controls ─────────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 8px 18px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    .btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn.primary:hover:not(:disabled) {
+      background: var(--accent-light);
+      border-color: var(--accent-light);
+      color: #fff;
+    }
+
+    .refresh-time {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+
+    /* ── Error / loading ──────────────────────────────────────────── */
+    .state-msg {
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .state-msg.loading {
+      background: var(--surface2);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .state-msg.error {
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* ── EVIDENCE HISTORY panel ───────────────────────────────────── */
+    .history-panel {
+      text-align: center;
+      padding: 48px 24px;
+    }
+
+    .history-panel h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .history-panel p {
+      color: var(--text-muted);
+      font-size: 13px;
+      max-width: 480px;
+      margin: 0 auto 28px;
+      line-height: 1.7;
+    }
+
+    .history-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: background 0.15s ease;
+    }
+
+    .history-link:hover { background: var(--accent-light); }
+
+    .history-note {
+      margin-top: 20px;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* ── Address display ──────────────────────────────────────────── */
+    .addr {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .addr-short {
+      display: inline;
+    }
+
+    /* ── Responsive ───────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      .stat-value { font-size: 16px; }
+      .holder-table th:nth-child(3),
+      .holder-table td:nth-child(3) { display: none; }
+      .mode-btn { padding: 8px 14px; font-size: 11px; }
+    }
+
+    @media (max-width: 400px) {
+      .stat-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <div class="brand-mark">⬡</div>
+      <div>
+        <div class="brand-name">Suspense CVA</div>
+        <div class="brand-sub">Evidence Reconstruction Demo</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mode toggle -->
+  <div class="mode-bar" role="tablist" aria-label="Demo mode">
+    <button class="mode-btn active" id="btn-live" role="tab" aria-selected="true" onclick="setMode('live')">
+      Live Testnet
+    </button>
+    <button class="mode-btn" id="btn-history" role="tab" aria-selected="false" onclick="setMode('history')">
+      Evidence History
+    </button>
+  </div>
+
+  <!-- LIVE TESTNET VIEW -->
+  <div id="view-live">
+
+    <div class="reality-banner live">
+      <div class="banner-dot pulse"></div>
+      LIVE POLICY CHECK — ON-CHAIN canTransfer() · Monad Testnet · Chain 10143
+    </div>
+
+    <div class="controls">
+      <button class="btn primary" id="refresh-btn" onclick="refresh()">↻ Refresh</button>
+      <span class="refresh-time" id="refresh-time"></span>
+    </div>
+
+    <!-- Chain status -->
+    <div class="card" id="card-status">
+      <div class="card-title">Vault Status</div>
+      <div id="status-content"><div class="state-msg loading">Loading live chain state…</div></div>
+    </div>
+
+    <!-- Eligibility -->
+    <div class="card" id="card-eligibility">
+      <div class="card-title">Eligibility — Fresh Cleanverse Policy Check</div>
+      <div id="eligibility-content"><div class="state-msg loading">Querying on-chain policy…</div></div>
+    </div>
+
+    <!-- Source note -->
+    <div style="font-size: 11px; color: var(--text-dim); text-align: center; margin-top: 8px;">
+      Eligibility = on-chain IATokenPolicy.canTransfer() via eth_call · Not a Cleanverse REST API call · No client secrets
+    </div>
+
+  </div>
+
+  <!-- EVIDENCE HISTORY VIEW -->
+  <div id="view-history" style="display:none;">
+
+    <div class="reality-banner historical">
+      <div class="banner-dot"></div>
+      HISTORICAL EVIDENCE · Canonical Gate E→F reconstruction · No live RPC
+    </div>
+
+    <div class="card">
+      <div class="history-panel">
+        <h2>Evidence Reconstruction Mode</h2>
+        <p>
+          The canonical 9-step Evidence Reconstruction demo walks through the
+          complete Suspense lifecycle using hardcoded Gate E→F on-chain receipts.
+          All data is historical evidence — no live RPC calls, no testnet connection required.
+        </p>
+        <a class="history-link" href="/demo/" target="_blank" rel="noopener">
+          Open Evidence Reconstruction →
+        </a>
+        <div class="history-note">
+          Opens in a new tab · Canonical demo (commit d03bb118) · Historical Evidence class
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// ── Mode toggle ──────────────────────────────────────────────────────────────
+function setMode(mode) {
+  const isLive = mode === 'live';
+  document.getElementById('view-live').style.display    = isLive ? '' : 'none';
+  document.getElementById('view-history').style.display = isLive ? 'none' : '';
+  document.getElementById('btn-live').classList.toggle('active', isLive);
+  document.getElementById('btn-history').classList.toggle('active', !isLive);
+  document.getElementById('btn-live').setAttribute('aria-selected', String(isLive));
+  document.getElementById('btn-history').setAttribute('aria-selected', String(!isLive));
+  if (isLive && !_loaded) refresh();
+}
+
+// ── Data fetching ────────────────────────────────────────────────────────────
+let _loaded = false;
+
+async function refresh() {
+  const btn = document.getElementById('refresh-btn');
+  btn.disabled = true;
+  btn.textContent = '↻ Refreshing…';
+
+  try {
+    const [statusRes, eligRes] = await Promise.all([
+      fetch('/api/status'),
+      fetch('/api/eligibility'),
+    ]);
+
+    const status = await statusRes.json();
+    const elig   = await eligRes.json();
+
+    renderStatus(status, statusRes.ok);
+    renderEligibility(elig, eligRes.ok);
+
+    document.getElementById('refresh-time').textContent =
+      'Refreshed ' + new Date().toLocaleTimeString();
+    _loaded = true;
+  } catch (err) {
+    renderError('status-content', 'Network error: ' + err.message);
+    renderError('eligibility-content', 'Network error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '↻ Refresh';
+  }
+}
+
+// ── Render: vault status ─────────────────────────────────────────────────────
+function renderStatus(data, ok) {
+  const el = document.getElementById('status-content');
+  if (!ok || data.error) {
+    el.innerHTML = `<div class="state-msg error">
+      RPC error — Monad Testnet may be unreachable.<br>
+      <span style="font-size:11px;opacity:0.7;">${escHtml(data.error || 'Unknown error')}</span>
+    </div>`;
+    return;
+  }
+
+  const balance = data.vaultBalance ?? '—';
+  const block   = data.blockNumber  != null ? data.blockNumber.toLocaleString() : '—';
+  const chain   = data.chainId      ?? '—';
+  const ts      = data.timestamp ? new Date(data.timestamp * 1000).toLocaleString() : '—';
+
+  el.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="stat-label">Vault Balance</div>
+        <div class="stat-value highlight">${escHtml(balance)}</div>
+        <div class="stat-sub">${escHtml(data.tokenSymbol ?? 'SPNS01')}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Chain ID</div>
+        <div class="stat-value green">${escHtml(String(chain))}</div>
+        <div class="stat-sub">Monad Testnet</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Block</div>
+        <div class="stat-value">${escHtml(String(block))}</div>
+        <div class="stat-sub">${escHtml(ts)}</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Vault</div>
+        <div class="stat-value" style="font-size:11px;font-family:var(--mono);">${shortAddr(data.vault)}</div>
+        <div class="stat-sub">SuspenseVault</div>
+      </div>
+    </div>`;
+}
+
+// ── Render: eligibility ──────────────────────────────────────────────────────
+function renderEligibility(data, ok) {
+  const el = document.getElementById('eligibility-content');
+  if (!ok || data.error) {
+    el.innerHTML = `<div class="state-msg error">
+      Policy query failed.<br>
+      <span style="font-size:11px;opacity:0.7;">${escHtml(data.error || 'Unknown error')}</span>
+    </div>`;
+    return;
+  }
+
+  const holders = data.holders ?? [];
+  const rows = holders.map(h => {
+    const cls  = h.error ? 'unknown' : (h.eligible ? 'eligible' : 'ineligible');
+    const dot  = h.eligible ? '✓' : '✗';
+    const lbl  = h.error ? 'Error' : (h.eligible ? 'Eligible' : 'Ineligible');
+    return `<tr>
+      <td><strong>${escHtml(String(h.holder))}</strong></td>
+      <td class="mono">${shortAddr(h.address)}</td>
+      <td>${escHtml(h.country)}</td>
+      <td><span class="badge ${cls}">${dot} ${lbl}</span></td>
+    </tr>`;
+  }).join('');
+
+  const eligCount = holders.filter(h => h.eligible).length;
+  const total     = holders.length;
+
+  el.innerHTML = `
+    <div style="margin-bottom:14px; font-size:12px; color:var(--text-muted);">
+      Policy: <span class="addr">${shortAddr(data.policy)}</span> ·
+      Checked at: ${escHtml(data.isoTime ?? '—')} ·
+      <strong style="color:var(--green)">${eligCount}/${total} eligible</strong>
+    </div>
+    <table class="holder-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Wallet</th>
+          <th>Country</th>
+          <th>canTransfer()</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function renderError(id, msg) {
+  document.getElementById(id).innerHTML =
+    `<div class="state-msg error">${escHtml(msg)}</div>`;
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function shortAddr(addr) {
+  if (!addr) return '—';
+  return `<span class="addr-short" title="${escHtml(addr)}">${escHtml(addr.slice(0,6))}…${escHtml(addr.slice(-4))}</span>`;
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+refresh();
+</script>
+</body>
+</html>
