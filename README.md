@@ -1,10 +1,10 @@
 # Suspense
 
-**Pay what clears. Hold what doesnâ€™t.**
+**Pay what clears. Hold what doesn’t.**
 
 Compliance-aware coupon distribution for Cleanverse Verified Assets.
 
-Built for the **Cleanverse Build: Trusted Assets Hackathon â€” RWA Track**.
+Built for the **Cleanverse Build: Trusted Assets Hackathon — RWA Track**.
 
 ## Status
 
@@ -13,11 +13,11 @@ In development.
 ## Core flow
 
 CVI / A-Pass
-â†’ CVA
-â†’ Cleanverse eligibility
-â†’ PAID / SUSPENDED
-â†’ fresh recheck
-â†’ RELEASED
+→ CVA
+→ Cleanverse eligibility
+→ PAID / SUSPENDED
+→ fresh recheck
+→ RELEASED
 
 ## Hero Demo
 

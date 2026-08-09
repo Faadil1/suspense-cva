@@ -65,8 +65,8 @@ describe('createSessionToken / verifySessionToken', () => {
     const token = createSessionToken(secret);
     const [payload, sig] = token.split('.');
 
-    // Flip a character in the signature
-    const tamperedSig = sig.slice(0, -1) + (sig.endsWith('A') ? 'B' : 'A');
+    // Flip the first Base64URL character so decoded signature bytes always change.
+    const tamperedSig = (sig.startsWith('A') ? 'B' : 'A') + sig.slice(1);
     const tampered = `${payload}.${tamperedSig}`;
 
     const result = verifySessionToken(tampered, secret);

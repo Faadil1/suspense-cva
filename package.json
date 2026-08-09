@@ -1,7 +1,7 @@
 {
   "name": "suspense-cva",
   "version": "1.0.0",
-  "description": "Suspense CVA â€” Evidence Reconstruction + Live Testnet",
+  "description": "Suspense CVA — Evidence Reconstruction + Live Testnet",
   "private": true,
   "type": "module",
   "engines": {
